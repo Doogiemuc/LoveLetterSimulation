@@ -1,7 +1,7 @@
 package org.loveletter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * Base class for a love letter player.
@@ -14,27 +14,48 @@ public abstract  class Player {
     /** The (first) card that this player has in hand */
     Card card1;
     
-    /** the card that was just drawn */
+    /** the card that was just drawn. Card2 is null when its not this player's turn. */
     Card card2;
 
-    /** is this player still in the game */
+    /** is this player still in the game? */
     boolean inGame;
     
-    /** cards that this player has already played. highest index is played last */
-    List<Card> playedCards;
+    /** is this player currently guarded, because he has played a guard */
+    boolean isGuarded = false;
+    
+    //TODO: push this down to BestPlayer  => other players do not need it. => Board must keep track of played cards for shortToString
+    
+
+    Random rand = new Random(System.currentTimeMillis());
+    
+    /** id and firstCard need to be initialized later when using this constructor */
+    public Player() {
+        this.card2 = null;
+        this.inGame = true;
+    }
     
     public Player(int id, Card firstCard) {
+        this();
+        this.id = id;
+        this.card1 = firstCard;
+        this.card2 = null;
+    }
+    
+    /** reset this player for a new game */
+    public void reset(int id, Card firstCard) {
         this.id = id;
         this.card1 = firstCard;
         this.card2 = null;
         this.inGame = true;
-        this.playedCards = new ArrayList<Card>();
+        this.isGuarded = false;
     }
     
+    /** is player still in game */
     public void setInGame(boolean inGame) {
         this.inGame = inGame;
     }
 
+    /** drawn card will be set as card2 */
     public void drawCard(Card card) {
         this.card2 = card;
     }
@@ -49,49 +70,36 @@ public abstract  class Player {
         Card chosenCard = this.card1;
         card1 = card2;
         card2 = null;
-        playedCards.add(chosenCard);
+        isGuarded = (chosenCard.value == Card.GUARD);
         return chosenCard;
     }
 
     protected Card playCard2() {
         Card chosenCard = this.card2;
         card2 = null;
-        playedCards.add(chosenCard);
+        isGuarded = (chosenCard.value == Card.GUARD);
         return chosenCard;
     }
 
     /**
-     * check if this player is currently guarded
-     * @return true if the last played card was a maid.
-     */
-    public boolean isGuarded() {
-        if (playedCards.size() == 0) return false;
-        return playedCards.get(playedCards.size()-1).value == Card.MAID;
-    }
-    
-    /**
      * IF player has countess and also king or prince,
      * THEN he must play the countess.
      * This method will check and also play the countess if necessary.
-     * @return true if player actually had to play the countess
+     * If the player had the countess , then {@link #chooseCardtoPlay()} will not be called anymore.
+     * @return the countess if it must be played, otherwise null
      */
-    public boolean mustPlayCountess() {
-        // if card2 is the countess, then swap the cards so that card1 is the countess
-        if (card2.value == Card.COUNTESS) {
-            Card countess = card2;
-            card2 = card1;
-            card1 = countess;
-        }
-        // if card1 is the countess (either with or without swaping)
-        // and the other card is king or prince, 
-        // then you must play the countess
+    public Card mustPlayCountess() {
         if ( card1.value == Card.COUNTESS && 
             (card2.value == Card.KING || card2.value == Card.PRINCE)) {
-            playCard1();
             Log.traceAppend(" must play contess.");
-            return true;
+            return playCard1();
+            }
+        if ( card2.value == Card.COUNTESS && 
+            (card1.value == Card.KING || card1.value == Card.PRINCE)) {
+            Log.traceAppend(" must play contess.");
+            return playCard2();
         }
-        return false;
+        return null;
     }
     
     //----- implement these methods in sublcasses! -----------
@@ -104,12 +112,15 @@ public abstract  class Player {
 
     
     /**
-     * Get an id of another player. Only called for cards where current player needs 
-     * to choose another player. 
-     * Player must not return his own id!
+     * Get id of player for cards where current player needs to choose a player. Normaly another player is chosen,
+     * but for <b>prince</b> the player may choose himself.
      * @param cardValue either guard, priest, baron, prince or king
+     * @param availablePlayers list of players that can be chosen from, ie. players that are still in the game
+     *        and that are not currently protected. For prince, this list contains the player himself. 
+     *        This list may be empty!
+     * @return the chosen player or -1 if list was empty
      */
-    public abstract int getOtherPlayerFor(int cardValue);
+    public abstract int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds);
   /*  implement like this:
           
         switch (cardValue) {
@@ -140,16 +151,67 @@ public abstract  class Player {
     
     
     /**
-     * let this player know the card of another player
-     * @param id index of other player
-     * @param value card value of other player
+     * Let this player know the card of another player.
+     * Will only be called with other player's id.
+     * @param id id of another player
+     * @param value card value of this other player
      */
     public abstract void otherPlayerHasCard(int id, int value);
 
+    /**
+     * player has played a card. Will also be called for your own cards.
+     * @param id id of the player (may be your own id)
+     * @param card card value that was played
+     */
+    public abstract void cardPlayed(int id, Card card);
 
     @Override
     public String toString() {
         return "P"+id+"["+card1+"]";
     }
+
+    /**
+     * get a random element from the set. This helper method can be used by Player subclasses if no other information is available
+     * for choosing a player.
+     * @param availablePlayerIds set of ids to choose from (may contain own id)
+     * @return the chosen id or -1 if availablePlayerIds was empty
+     */
+    public int getRandomPlayerId(Set<Integer> availablePlayerIds) {
+        int size = availablePlayerIds.size();
+        if (size == 0) return -1;
+        int countTo = rand.nextInt(size); 
+        int counter = 0;
+        for(Integer id : availablePlayerIds)
+        {
+            if (counter == countTo) return id;
+            counter++;
+        }
+        Log.error("Did not find random player");
+        return -1;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + id;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Player other = (Player) obj;
+        if (id != other.id)
+            return false;
+        return true;
+    }
+
+    
 
 }

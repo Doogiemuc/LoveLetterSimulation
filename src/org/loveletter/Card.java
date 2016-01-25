@@ -20,7 +20,7 @@ public class Card {
         "GUARD", "PRIEST", "BARON", "MAID", "PRINCE", "KING", "COUNTESS", "PRINCESS"
     };
     public static final String[] Name_DE = {
-        "WÃ¤chter", "Priester", "Baron", "Zofe", "Prinz", "KÃ¶nig", "GrÃ¤fin", "Prinzessin"
+        "Wächter", "Priester", "Baron", "Zofe", "Prinz", "König", "Gräfin", "Prinzessin"
     };
 
     int value;   // card's value as printed on the card. (1-8)

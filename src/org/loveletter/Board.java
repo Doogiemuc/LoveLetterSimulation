@@ -2,8 +2,12 @@ package org.loveletter;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Board with cardstack and players
@@ -13,30 +17,47 @@ public class Board {
     public static final int NUM_CARDS = 16;
 
     /** 
-     * stack of cards, where cards are drawn from. In LoveLetter the last card in the stack
+     * Sorted stack of cards, where cards are drawn from. In LoveLetter the last card in the stack
      * is not draw anymore. (It is used in some special situations of the last play.)
-     * Element at index 0 is the topmost card!
+     * Element at index 0 is the topmost card that will be drawn next!
      */
-    public static List<Card>   cardstack; 
+    public static List<Card> cardstack; 
     
     /** players at the table */
-    public static List<Player> players;
+    public List<Player> players;
+    
+    /** keep track of already played cards for each player */
+    public Map<Player, List<Card>> playedCards;
     
     /** index of player who is just his turn */
-    int currentPlayerIdx = 0;
+    int currentPlayerId = 0;
     
     /** how many turns have been played */
     int turn = 0;
 
+    /** statistics about this game. Will be filled, when game is finished */
+    GameStats gameStats = null;
+    List<Card> initialStack = null;
+    
+    // singleton instance
     private static Board instance = null;
     
-    public static Board newBoard(int numPlayers) {
-        instance = new Board(numPlayers);
+    public static Board newBoard(List<Player> players) {
+        instance = new Board(players);
         return instance;
     }
         
-    private Board(int numPlayers) {
-        //----- setup cardstack
+    /** 
+     * start a new game
+     * @param players the competing players at the table 
+     */
+    private Board(List<Player> players) {
+        this.playedCards  = new HashMap<Player, List<Card>>();
+        this.turn = 0;
+        this.currentPlayerId = 0;
+        this.gameStats = null;
+        
+        //----- setup cardstack and shuffle
         cardstack = new ArrayList<Card>(Card.Name_EN.length);
         for (int i = 0; i < Card.Name_EN.length; i++) {
             for (int j = 0; j < Card.NumCardsOfValue[i]; j++) {
@@ -44,20 +65,21 @@ public class Board {
                 cardstack.add(card);
             }
         }
-        Collections.shuffle(cardstack, new Random(System.currentTimeMillis())); 
+        Collections.shuffle(cardstack, new Random(System.nanoTime())); 
+        this.initialStack = new ArrayList<Card>(cardstack);
         
-        //----- setup players and deal cards
-        Board.players = new ArrayList<Player>(numPlayers);
-        for (int i = 0; i < numPlayers; i++) {
+        //----- seat players and deal cards to players
+        this.players = new ArrayList<Player>(players);  // make copy
+        for (int i = 0; i < players.size(); i++) {
+            Player player = players.get(i);
             Card firstCard = cardstack.remove(0);
-            Player player = new RandomPlayer(i, firstCard);
-            players.add(player);
+            player.reset(i, firstCard);
+            playedCards.put(player, new ArrayList<Card>());
         }
-        this.turn = 0;
     }
 
     /**
-     * let the next player draw a card and play one card
+     * let the next player draw a card and play one of his two cards
      * @return false when game is finished (only one card left in the stack or only one player left)
      */
     public boolean nextPlayer() {
@@ -66,24 +88,41 @@ public class Board {
         
         //----- currentPlayer draws a card 
         Card topCard = cardstack.remove(0);
-        Player currentPlayer = players.get(currentPlayerIdx);
+        Player currentPlayer = players.get(currentPlayerId);
         currentPlayer.drawCard(topCard);
         
         Log.traceAppend(turn+": "+currentPlayer.toString()+" draws "+topCard);
-        // If player has to play the countess, then do it.
-        // Otherwise let the player chooose a card he wants to play
-        if (!currentPlayer.mustPlayCountess()) {
-            Card chosenCard = currentPlayer.chooseCardtoPlay();
-            Log.traceAppend(" plays "+chosenCard);
+        //----- If player has to play the countess, then do it.
+        Card chosenCard = currentPlayer.mustPlayCountess();
+        
+        //----- otherwise let the player choose a card he wants to play
+        if (chosenCard == null) {
+            chosenCard = currentPlayer.chooseCardtoPlay();
+            if (chosenCard == topCard) {
+                Log.traceAppend(" plays it");
+            } else {
+                Log.traceAppend(" plays "+chosenCard);
+            }
             handleCard(chosenCard);
+            this.playedCards.get(currentPlayer).add(chosenCard);
+        }
+        
+        //----- inform all players about the played card
+        for (Player player : players) {
+            player.cardPlayed(currentPlayerId, chosenCard);
         }
         Log.traceFlush();
         
-        //----- check if game is finished or advance to next player that is still in the game
-        if (isGameFinished()) return false;
+        //----- check if game is finished
+        if (isGameFinished()) {
+            this.gameStats = new GameStats(initialStack, players, turn);            
+            return false;
+        }
+        
+        //----- advance to next player that is still in the game
         do {
-            currentPlayerIdx = (currentPlayerIdx + 1) % getNumPlayers();
-        } while (!players.get(currentPlayerIdx).inGame);
+            currentPlayerId = (currentPlayerId + 1) % players.size();
+        } while (!players.get(currentPlayerId).inGame);
   
         return true; 
     }
@@ -94,7 +133,7 @@ public class Board {
      * @param card
      */
     public void handleCard(Card card) {
-        Player currentPlayer = players.get(currentPlayerIdx);
+        Player currentPlayer = players.get(currentPlayerId);
         int    otherId       = -1;
         Player otherPlayer   = null;
         
@@ -104,14 +143,33 @@ public class Board {
             card.value == Card.PRINCE ||
             card.value == Card.KING ) 
         {
-            otherId = currentPlayer.getOtherPlayerFor(card.value);
+            // create Set of available player IDs to choose from
+            Set<Integer> availablePlayerIds = new HashSet<Integer>();
+            for (Player player : players) {
+                if (player.inGame &&                        // player must still be in the game 
+                    !player.isGuarded &&                    // and must not be guarded
+                    (card.value == Card.PRINCE || player != currentPlayer)  )   // and must not choose himself, unless for the prince (discarding own card is allowed) 
+                {
+                    availablePlayerIds.add(player.id);
+                }
+            }
+            // when there is no other player to choose from, then discard players card
+            if (availablePlayerIds.size() == 0) {
+                Log.traceAppend(" without effect.");
+                return;
+            }
+
+            otherId = currentPlayer.getPlayerFor(card.value, availablePlayerIds);
+            if (!availablePlayerIds.contains(otherId)) {
+                Log.error(currentPlayer+" has chosen invalid otherId="+otherId+" not in "+availablePlayerIds+" for "+card.value+ "=> will ignore");
+                return;  // ignore wrong choices
+            }
             otherPlayer = players.get(otherId);
-            if (otherPlayer.isGuarded()) return;  // if otherPlayer has played countess, then he is safe
         }
         
         switch (card.value) {
-        case Card.GUARD: // Gues a card
-            int guessedValue = currentPlayer.guessCardValue();  // returns guessed card value of otherPlayer
+        case Card.GUARD: // Try to guess  card of other player
+            int guessedValue = currentPlayer.guessCardValue();
             Log.traceAppend(" guesses "+guessedValue+" at "+otherPlayer);
             if (otherPlayer.hasCardValue(guessedValue)) {
                 Log.traceAppend(" => CORRECT!");
@@ -125,9 +183,10 @@ public class Board {
             break;
             
         case Card.BARON: // compare card values
-            // both players now know each others card
-            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1.value);
-            otherPlayer.otherPlayerHasCard(currentPlayerIdx, currentPlayer.card1.value);
+            if (currentPlayerId != otherId) {   // both players now know each others card
+              currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1.value);
+              otherPlayer.otherPlayerHasCard(currentPlayerId, currentPlayer.card1.value);
+            }
             if (currentPlayer.card1.value > otherPlayer.card1.value) {
                 otherPlayer.setInGame(false);
                 Log.traceAppend(" and throws out "+otherPlayer);
@@ -145,19 +204,24 @@ public class Board {
             Log.traceAppend(" and is save.");
             break;
             
-        case Card.PRINCE:  // other player must discard his card and draw a new one
+        case Card.PRINCE:  // discard card and draw a new one (player may have chosen other player or himself) 
             Log.traceAppend(": "+otherPlayer);
             Card topCard = cardstack.remove(0);
             otherPlayer.drawCard(topCard);
-            otherPlayer.playCard1();  // Discard card, without effect.
-            Log.traceAppend(" must discard his card and draws "+topCard);
+            Card discarded = otherPlayer.playCard1();  // Discard card, without effect.
+            if (discarded.value == Card.PRINCESS) {
+                otherPlayer.setInGame(false);
+                Log.traceAppend(" has to discard the princess and is OUT.");
+            } else {
+                Log.traceAppend(" discards his card and draws "+topCard);
+            }
             break;
             
         case Card.KING:  // change cards with otherPlayer
+            Log.traceAppend(" and exchanges cards with "+otherPlayer);
             Card myCard = currentPlayer.card1;
             currentPlayer.card1 = otherPlayer.card1;
             otherPlayer.card1 = myCard;
-            Log.traceAppend(" and exchanges cards with "+otherPlayer);
             break;
             
         case Card.COUNTESS:  
@@ -174,11 +238,7 @@ public class Board {
         
     }
     
-    public static int getNumPlayers() {
-        return players.size();
-    }
-    
-    public static int getNumPlayerStillInGame() {
+    public int getNumPlayerStillInGame() {
         int num = 0;
         for (Player player : players) {
             if (player.inGame) num++;
@@ -191,12 +251,16 @@ public class Board {
      * @return true when the game is finished
      */
     public boolean isGameFinished() {
-        if (cardstack.size() <= 1) return true;  // last card has been drawn (none or one card left in the stack)
+        if (cardstack.size() <= 1) return true;         // last card has been drawn (none or one card left in the stack)
         if (getNumPlayerStillInGame() < 2) return true; // one player has won
         return false;
     }
     
-    public String printBoardShort() {
+    /**
+     * return a short one line representation of the current state of the game.
+     * @return a string
+     */
+    public String getBoardShort() {
         StringBuffer buf = new StringBuffer();
         for (Card card : cardstack) {
             buf.append(card.value);
@@ -207,11 +271,12 @@ public class Board {
             if (player.card2 != null) {
                 buf.append(player.card2.value);
             }
+            if (!player.inGame) buf.append("-");
             buf.append("(");
-            for (Card card : player.playedCards) {
+            for (Card card : this.playedCards.get(player)) {
                 buf.append(card.value);
             }
-            buf.append(")");
+            buf.append(") ");
         }
         return buf.toString();
     }

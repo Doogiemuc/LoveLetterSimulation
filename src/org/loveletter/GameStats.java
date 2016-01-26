@@ -8,19 +8,13 @@ import java.util.Set;
  * statistics of one game after is has finished.
  */
 public class GameStats {
-    public List<Card> initialStack;
-    public List<Player> players;
-    public int roundsPlayed = 0;
-    public Set<String> winners;
+    List<Card> initialStack;
+    List<Player> players;
+    int roundsPlayed = 0;
+    Set<String> winners;
+    List<List<Card>> playedCards;
 
-    public GameStats(List<Card> initialStack, List<Player> players, int roundsPlayed, Set<String> winners) {
-        this.initialStack = initialStack;
-        this.players = players;
-        this.roundsPlayed = roundsPlayed;
-        this.winners = winners;
-    }
-
-    public GameStats(List<Card> initialStack, List<Player> players, int roundsPlayed) {
+    public GameStats(List<Card> initialStack, List<Player> players, int roundsPlayed, List<List<Card>> playedCards) {
         Set<String> winners = new HashSet<String>(); 
         int highestValue = 0;
         for (Player player : players) {
@@ -37,6 +31,7 @@ public class GameStats {
         this.players = players;
         this.roundsPlayed = roundsPlayed;
         this.winners = winners;
+        this.playedCards = playedCards;
     }
 
     /**
@@ -52,11 +47,11 @@ public class GameStats {
         buf.append(", ");
         for (Player player : players) {
             buf.append(player.toString());
-//            buf.append("(");
-//            for (Card card : player.playedCards) {
-//                buf.append(card.value);
-//            }
-//            buf.append(") ");
+            buf.append("(");
+            for (Card card : playedCards.get(player.id)) {
+                buf.append(card.value);
+            }
+            buf.append(") ");
         }
         buf.append(", rounds="+roundsPlayed);
         buf.append(", winners="+winners);

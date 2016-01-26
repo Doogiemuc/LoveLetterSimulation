@@ -39,7 +39,7 @@ public class HigherCardPlayer extends Player {
     }
 
     @Override
-    public void otherPlayerHasCard(int id, int value) {
+    public void otherPlayerHasCard(int id, Card card) {
         //HigherCardPlayer does not remember any cards.
     }
 

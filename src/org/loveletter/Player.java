@@ -21,33 +21,37 @@ public abstract  class Player {
     boolean inGame;
     
     /** is this player currently guarded, because he has played a guard */
-    boolean isGuarded = false;
+    boolean isGuarded;
     
-    //TODO: push this down to BestPlayer  => other players do not need it. => Board must keep track of played cards for shortToString
+    /** overall number of players in the game (including myself) */
+    int numPlayers;
     
-
-    Random rand = new Random(System.currentTimeMillis());
+    /** random number generator */
+    Random rand = new Random(System.nanoTime());
     
     /** id and firstCard need to be initialized later when using this constructor */
     public Player() {
         this.card2 = null;
         this.inGame = true;
+        this.isGuarded = false;
     }
     
-    public Player(int id, Card firstCard) {
+    public Player(int id, Card firstCard, int numPlayers) {
         this();
         this.id = id;
         this.card1 = firstCard;
         this.card2 = null;
+        this.numPlayers = numPlayers;
     }
     
     /** reset this player for a new game */
-    public void reset(int id, Card firstCard) {
+    public void reset(int id, Card firstCard, int numPlayers) {
         this.id = id;
         this.card1 = firstCard;
         this.card2 = null;
         this.inGame = true;
         this.isGuarded = false;
+        this.numPlayers = numPlayers;
     }
     
     /** is player still in game */
@@ -96,7 +100,7 @@ public abstract  class Player {
             }
         if ( card2.value == Card.COUNTESS && 
             (card1.value == Card.KING || card1.value == Card.PRINCE)) {
-            Log.traceAppend(" must play contess.");
+            Log.traceAppend(" and must play contess.");
             return playCard2();
         }
         return null;
@@ -154,13 +158,14 @@ public abstract  class Player {
      * Let this player know the card of another player.
      * Will only be called with other player's id.
      * @param id id of another player
-     * @param value card value of this other player
+     * @param card card of this other player
      */
-    public abstract void otherPlayerHasCard(int id, int value);
+    public abstract void otherPlayerHasCard(int id, Card card);
 
     /**
-     * player has played a card. Will also be called for your own cards.
-     * @param id id of the player (may be your own id)
+     * A player has played a card. 
+     * Will also be called for own cards.
+     * @param id id of the player (can be my own id) 
      * @param card card value that was played
      */
     public abstract void cardPlayed(int id, Card card);

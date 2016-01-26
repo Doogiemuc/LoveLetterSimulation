@@ -4,10 +4,10 @@ import java.io.PrintStream;
 
 public class Log {
     private static PrintStream stream = System.out;
-    public static final boolean logTRACE = true;
-    public static final boolean logINFO  = true;
-    public static final boolean logWARN  = true;
-    public static final boolean logERROR = true;
+    public static boolean logTRACE = true;
+    public static boolean logINFO  = true;
+    public static boolean logWARN  = true;
+    public static boolean logERROR = true;
     
     static StringBuffer buf = new StringBuffer();
     

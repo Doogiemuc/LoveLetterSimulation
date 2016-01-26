@@ -2,10 +2,8 @@ package org.loveletter;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -21,13 +19,17 @@ public class Board {
      * is not draw anymore. (It is used in some special situations of the last play.)
      * Element at index 0 is the topmost card that will be drawn next!
      */
-    public static List<Card> cardstack; 
+    public List<Card> cardstack;
+    
+    /** backup of cardStack at start of game */
+    private List<Card> initialStack = null;
+
     
     /** players at the table */
     public List<Player> players;
     
     /** keep track of already played cards for each player */
-    public Map<Player, List<Card>> playedCards;
+    public List<List<Card>> playedCards;
     
     /** index of player who is just his turn */
     int currentPlayerId = 0;
@@ -36,23 +38,14 @@ public class Board {
     int turn = 0;
 
     /** statistics about this game. Will be filled, when game is finished */
-    GameStats gameStats = null;
-    List<Card> initialStack = null;
-    
-    // singleton instance
-    private static Board instance = null;
-    
-    public static Board newBoard(List<Player> players) {
-        instance = new Board(players);
-        return instance;
-    }
-        
+    GameStats gameStats = null;    
+
     /** 
      * start a new game
      * @param players the competing players at the table 
      */
-    private Board(List<Player> players) {
-        this.playedCards  = new HashMap<Player, List<Card>>();
+    public Board(List<Player> players) {
+        this.playedCards  = new ArrayList<List<Card>>(players.size());
         this.turn = 0;
         this.currentPlayerId = 0;
         this.gameStats = null;
@@ -73,8 +66,8 @@ public class Board {
         for (int i = 0; i < players.size(); i++) {
             Player player = players.get(i);
             Card firstCard = cardstack.remove(0);
-            player.reset(i, firstCard);
-            playedCards.put(player, new ArrayList<Card>());
+            player.reset(i, firstCard, players.size());
+            playedCards.add(player.id, new ArrayList<Card>());
         }
     }
 
@@ -98,14 +91,14 @@ public class Board {
         //----- otherwise let the player choose a card he wants to play
         if (chosenCard == null) {
             chosenCard = currentPlayer.chooseCardtoPlay();
-            if (chosenCard == topCard) {
+            if (chosenCard.equals(topCard)) {
                 Log.traceAppend(" plays it");
             } else {
                 Log.traceAppend(" plays "+chosenCard);
             }
             handleCard(chosenCard);
-            this.playedCards.get(currentPlayer).add(chosenCard);
         }
+        this.playedCards.get(currentPlayerId).add(chosenCard);
         
         //----- inform all players about the played card
         for (Player player : players) {
@@ -115,7 +108,7 @@ public class Board {
         
         //----- check if game is finished
         if (isGameFinished()) {
-            this.gameStats = new GameStats(initialStack, players, turn);            
+            this.gameStats = new GameStats(initialStack, players, turn, playedCards);            
             return false;
         }
         
@@ -137,16 +130,17 @@ public class Board {
         int    otherId       = -1;
         Player otherPlayer   = null;
         
+        //----- choose otherPlayer for cards where that is necessary
         if (card.value == Card.GUARD  ||
             card.value == Card.PRIEST ||
             card.value == Card.BARON  ||
-            card.value == Card.PRINCE ||
+            card.value == Card.PRINCE ||   // for prince player may choose himself to discard his own card 
             card.value == Card.KING ) 
         {
             // create Set of available player IDs to choose from
             Set<Integer> availablePlayerIds = new HashSet<Integer>();
             for (Player player : players) {
-                if (player.inGame &&                        // player must still be in the game 
+                if (player.inGame &&                        // other player must still be in the game 
                     !player.isGuarded &&                    // and must not be guarded
                     (card.value == Card.PRINCE || player != currentPlayer)  )   // and must not choose himself, unless for the prince (discarding own card is allowed) 
                 {
@@ -158,7 +152,7 @@ public class Board {
                 Log.traceAppend(" without effect.");
                 return;
             }
-
+            // let Player decide whom to choose
             otherId = currentPlayer.getPlayerFor(card.value, availablePlayerIds);
             if (!availablePlayerIds.contains(otherId)) {
                 Log.error(currentPlayer+" has chosen invalid otherId="+otherId+" not in "+availablePlayerIds+" for "+card.value+ "=> will ignore");
@@ -178,15 +172,14 @@ public class Board {
             break;
             
         case Card.PRIEST: // look at other player's card
-            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1.value);
+            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1);
             Log.traceAppend(" and sees "+otherPlayer);
             break;
             
         case Card.BARON: // compare card values
-            if (currentPlayerId != otherId) {   // both players now know each others card
-              currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1.value);
-              otherPlayer.otherPlayerHasCard(currentPlayerId, currentPlayer.card1.value);
-            }
+            // both players now know each others card
+            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1);
+            otherPlayer.otherPlayerHasCard(currentPlayerId, currentPlayer.card1);
             if (currentPlayer.card1.value > otherPlayer.card1.value) {
                 otherPlayer.setInGame(false);
                 Log.traceAppend(" and throws out "+otherPlayer);
@@ -194,7 +187,7 @@ public class Board {
                 currentPlayer.setInGame(false);
                 Log.traceAppend(" looses against "+otherPlayer);
             } else {
-              Log.traceAppend(" and both have the same card");
+              Log.traceAppend(" and has the same card as "+otherPlayer);
             }
             // When card value is equal, then no one is out.
             break;
@@ -237,7 +230,11 @@ public class Board {
         }
         
     }
-    
+
+    /**
+     * Number of players that are not out yet.
+     * @return number of players that are still in the game
+     */
     public int getNumPlayerStillInGame() {
         int num = 0;
         for (Player player : players) {
@@ -273,7 +270,7 @@ public class Board {
             }
             if (!player.inGame) buf.append("-");
             buf.append("(");
-            for (Card card : this.playedCards.get(player)) {
+            for (Card card : this.playedCards.get(player.id)) {
                 buf.append(card.value);
             }
             buf.append(") ");

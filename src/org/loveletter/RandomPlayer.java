@@ -10,7 +10,7 @@ public class RandomPlayer extends Player {
     /** random play, but will never play princess */
     @Override
     public Card chooseCardtoPlay() {
-        if (card2 == null) return card1;   // should never happen
+        if (card1 == null || card2 == null) throw new RuntimeException("Cannot choose card. I have only one!");
         if (card1.value == Card.PRINCESS) return playCard2();
         if (card2.value == Card.PRINCESS) return playCard1();
         return rand.nextBoolean() ? playCard1() : playCard2();
@@ -34,7 +34,7 @@ public class RandomPlayer extends Player {
     }
     
     @Override
-    public void otherPlayerHasCard(int id, int value) {
+    public void otherPlayerHasCard(int id, Card card) {
         //empty. RandomPlayer doesn't remember any cards :-)
     }
     

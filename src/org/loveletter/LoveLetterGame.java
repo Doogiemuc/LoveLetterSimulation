@@ -8,9 +8,11 @@ import java.util.List;
  *
  */
 public class LoveLetterGame {
-    public static final int NUM_GAMES = 100;
+    public static final int NUM_GAMES = 1000;
     
-    public static final int NUM_PLAYERS = 4;
+    public static final int NUM_PLAYERS = 2;
+    
+    static int[] winner;
     
     public static void main(String[] args) {
         Log.logTRACE = false;
@@ -18,19 +20,34 @@ public class LoveLetterGame {
 
         List<Player> players = new ArrayList<Player>();
         players.add(new BestPlayer());
-        players.add(new HigherCardPlayer());
+        //players.add(new HigherCardPlayer());
+        //players.add(new RandomPlayer());
         players.add(new RandomPlayer());
-        players.add(new RandomPlayer());
+        
+        winner = new int[players.size()];       
         
         for (int i = 0; i < NUM_GAMES; i++) {
             Board board = new Board(players);
-            Log.trace(board.getBoardShort());
+            Log.traceAppend(board.getBoardShort());
             while (board.nextPlayer()) {
-                Log.trace(board.getBoardShort());
+                Log.traceAppend(board.getBoardShort());
             }
             Log.trace(board.getBoardShort());
             Log.info(i+": "+board.gameStats.toString());
+            for (Player player : board.gameStats.winners) {
+                winner[player.id]++;
+            }
         }
+        
+        StringBuffer buf = new StringBuffer();
+        buf.append("Winners:");
+        for (int i = 0; i < players.size(); i++) {
+            buf.append(" "+players.get(i)+":");
+            buf.append(((double)winner[i]) / NUM_GAMES * 100);
+            buf.append("%");
+        }
+        Log.info(buf.toString());
+        
     }
 
 }

@@ -11,20 +11,20 @@ public class GameStats {
     List<Card> initialStack;
     List<Player> players;
     int roundsPlayed = 0;
-    Set<String> winners;
+    Set<Player> winners;
     List<List<Card>> playedCards;
 
     public GameStats(List<Card> initialStack, List<Player> players, int roundsPlayed, List<List<Card>> playedCards) {
-        Set<String> winners = new HashSet<String>(); 
+        Set<Player> winners = new HashSet<Player>(); 
         int highestValue = 0;
         for (Player player : players) {
             if (player.inGame && player.card1.value > highestValue) {
-                winners = new HashSet<String>();
-                winners.add(player.toString());
+                winners = new HashSet<Player>();
+                winners.add(player);
                 highestValue = player.card1.value;
             } else
             if (player.inGame && player.card1.value == highestValue) {
-                winners.add(player.toString());  // more than one winner
+                winners.add(player);  // more than one winner
             }                
         }
         this.initialStack = initialStack;

@@ -64,10 +64,14 @@ public abstract  class Player {
         this.card2 = card;
     }
 
-    public boolean hasCardValue(int val) {
-        if (card1.value == val) return true;
-        if (card2 != null && card2.value == val) return true;
-        return false;
+    /** 
+     * check if player has a card of this value 
+     * @return number of card (1 or 2) if he heas it, 0 otherwise
+     */
+    public int hasCardValue(int val) {
+        if (card1.value == val) return 1;
+        if (card2 != null && card2.value == val) return 2;
+        return 0;
     }
 
     protected Card playCard1() {

@@ -46,6 +46,16 @@ public class Log {
         }
     }
     
-    
+    /** pad the string to the given length */
+    public static String padLeftaligned(String s, int space) {
+        if (s == null) return "";
+        if (s.length() == space) return s;
+        if (s.length() > space) return s.substring(0, space);
+        StringBuffer buf = new StringBuffer(s);
+        for (int i = 0; i < space - s.length(); i++) {
+            buf.append(" ");
+        }
+        return buf.toString();
+    }
     
 }

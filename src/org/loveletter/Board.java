@@ -39,6 +39,7 @@ public class Board {
 
     /** statistics about this game. Will be filled, when game is finished */
     GameStats gameStats = null;    
+    
 
     /** 
      * start a new game
@@ -84,10 +85,10 @@ public class Board {
         Player currentPlayer = players.get(currentPlayerId);
         currentPlayer.drawCard(topCard);
         
-        Log.traceAppend(turn+": "+currentPlayer.toString()+" draws "+topCard);
+        Log.traceAppend(currentPlayer.toString()+" draws "+topCard);
         //----- If player has to play the countess, then do it.
         Card chosenCard = currentPlayer.mustPlayCountess();
-        
+
         //----- otherwise let the player choose a card he wants to play
         if (chosenCard == null) {
             chosenCard = currentPlayer.chooseCardtoPlay();
@@ -165,7 +166,7 @@ public class Board {
         case Card.GUARD: // Try to guess  card of other player
             int guessedValue = currentPlayer.guessCardValue();
             Log.traceAppend(" guesses "+guessedValue+" at "+otherPlayer);
-            if (otherPlayer.hasCardValue(guessedValue)) {
+            if (otherPlayer.hasCardValue(guessedValue) > 0) {
                 Log.traceAppend(" => CORRECT!");
                 otherPlayer.setInGame(false);  // card guessed correctly
             }
@@ -182,10 +183,10 @@ public class Board {
             otherPlayer.otherPlayerHasCard(currentPlayerId, currentPlayer.card1);
             if (currentPlayer.card1.value > otherPlayer.card1.value) {
                 otherPlayer.setInGame(false);
-                Log.traceAppend(" and throws out "+otherPlayer);
+                Log.traceAppend(" and throws out "+otherPlayer+ " in comparison");
             } else if (currentPlayer.card1.value < otherPlayer.card1.value) {
                 currentPlayer.setInGame(false);
-                Log.traceAppend(" looses against "+otherPlayer);
+                Log.traceAppend(" looses against "+otherPlayer + " in comparison");
             } else {
               Log.traceAppend(" and has the same card as "+otherPlayer);
             }
@@ -201,7 +202,8 @@ public class Board {
             Log.traceAppend(": "+otherPlayer);
             Card topCard = cardstack.remove(0);
             otherPlayer.drawCard(topCard);
-            Card discarded = otherPlayer.playCard1();  // Discard card, without effect.
+            Card discarded = otherPlayer.playCard1();  // Discard card, without effect on other players
+            playedCards.get(otherId).add(discarded);
             if (discarded.value == Card.PRINCESS) {
                 otherPlayer.setInGame(false);
                 Log.traceAppend(" has to discard the princess and is OUT.");
@@ -259,21 +261,23 @@ public class Board {
      */
     public String getBoardShort() {
         StringBuffer buf = new StringBuffer();
+        buf.append(Log.padLeftaligned(turn+":", 5));
         for (Card card : cardstack) {
             buf.append(card.value);
         }
         buf.append(" ");
         for (Player player : players) {
+            buf.append("(");
+            buf.append(player.inGame ? " " : "X");
             buf.append(player.card1.value);
             if (player.card2 != null) {
                 buf.append(player.card2.value);
             }
-            if (!player.inGame) buf.append("-");
-            buf.append("(");
+            buf.append(")");
             for (Card card : this.playedCards.get(player.id)) {
                 buf.append(card.value);
             }
-            buf.append(") ");
+            buf.append(" ");
         }
         return buf.toString();
     }

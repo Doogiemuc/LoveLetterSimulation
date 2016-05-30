@@ -27,7 +27,7 @@ public abstract  class Player {
     int numPlayers;
     
     /** random number generator */
-    Random rand = new Random(System.nanoTime());
+    Random rand = new Random();
     
     /** id and firstCard need to be initialized later when using this constructor */
     public Player() {
@@ -66,7 +66,7 @@ public abstract  class Player {
 
     /** 
      * check if player has a card of this value 
-     * @return number of card (1 or 2) if he heas it, 0 otherwise
+     * @return number of card (1 or 2) if he has it, 0 otherwise
      */
     public int hasCardValue(int val) {
         if (card1.value == val) return 1;
@@ -78,14 +78,14 @@ public abstract  class Player {
         Card chosenCard = this.card1;
         card1 = card2;
         card2 = null;
-        isGuarded = (chosenCard.value == Card.GUARD);
+        isGuarded = (chosenCard.value == Card.MAID);
         return chosenCard;
     }
 
     protected Card playCard2() {
         Card chosenCard = this.card2;
         card2 = null;
-        isGuarded = (chosenCard.value == Card.GUARD);
+        isGuarded = (chosenCard.value == Card.MAID);
         return chosenCard;
     }
 
@@ -99,12 +99,12 @@ public abstract  class Player {
     public Card mustPlayCountess() {
         if ( card1.value == Card.COUNTESS && 
             (card2.value == Card.KING || card2.value == Card.PRINCE)) {
-            Log.traceAppend(" must play contess.");
+            Log.traceAppend(" must play countess.");
             return playCard1();
             }
         if ( card2.value == Card.COUNTESS && 
             (card1.value == Card.KING || card1.value == Card.PRINCE)) {
-            Log.traceAppend(" and must play contess.");
+            Log.traceAppend(" and must play countess.");
             return playCard2();
         }
         return null;
@@ -186,17 +186,14 @@ public abstract  class Player {
      * @return the chosen id or -1 if availablePlayerIds was empty
      */
     public int getRandomPlayerId(Set<Integer> availablePlayerIds) {
-        int size = availablePlayerIds.size();
-        if (size == 0) return -1;
-        int countTo = rand.nextInt(size); 
+        int countTo = rand.nextInt(availablePlayerIds.size()); 
         int counter = 0;
         for(Integer id : availablePlayerIds)
         {
             if (counter == countTo) return id;
             counter++;
         }
-        Log.error("Did not find random player");
-        return -1;
+        throw new RuntimeException("Not able to find random player.");
     }
 
     @Override

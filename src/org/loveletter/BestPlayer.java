@@ -211,7 +211,7 @@ public class BestPlayer extends Player {
     /** remember cards of other players, when we see them */
     @Override
     public void otherPlayerHasCard(int id, Card card) {
-        if (id == this.id) throw new RuntimeException("otherPlayerHasCArd should not have been called with my own id");
+        if (id == this.id) throw new RuntimeException("otherPlayerHasCard should not have been called with my own id");
         knownCards.set(id, card);
     }
     
@@ -223,7 +223,7 @@ public class BestPlayer extends Player {
     }
     
     /**
-     * @return the smalles value we know of
+     * @return the smallest value we know of
      */
     public int smallestKnownValue() {
         int smallest = 999;

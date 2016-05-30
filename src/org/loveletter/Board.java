@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -12,7 +11,6 @@ import java.util.Set;
  * (Java singleton)
  */
 public class Board {
-    public static final int NUM_CARDS = 16;
 
     /** 
      * Sorted stack of cards, where cards are drawn from. In LoveLetter the last card in the stack
@@ -59,7 +57,7 @@ public class Board {
                 cardstack.add(card);
             }
         }
-        Collections.shuffle(cardstack, new Random(System.nanoTime())); 
+        Collections.shuffle(cardstack); 
         this.initialStack = new ArrayList<Card>(cardstack);
         
         //----- seat players and deal cards to players
@@ -149,7 +147,7 @@ public class Board {
                 }
             }
             // when there is no other player to choose from, then discard players card
-            if (availablePlayerIds.size() == 0) {
+            if (availablePlayerIds.isEmpty()) {
                 Log.traceAppend(" without effect.");
                 return;
             }
@@ -157,7 +155,7 @@ public class Board {
             otherId = currentPlayer.getPlayerFor(card.value, availablePlayerIds);
             if (!availablePlayerIds.contains(otherId)) {
                 Log.error(currentPlayer+" has chosen invalid otherId="+otherId+" not in "+availablePlayerIds+" for "+card.value+ "=> will ignore");
-                return;  // ignore wrong choices
+                throw new RuntimeException(currentPlayer + " selected incorrect PlayerID " + otherId);
             }
             otherPlayer = players.get(otherId);
         }

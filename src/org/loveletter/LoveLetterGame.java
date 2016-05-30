@@ -8,7 +8,7 @@ import java.util.List;
  *
  */
 public class LoveLetterGame {
-    public static final int NUM_GAMES = 1000;
+    public static final int NUM_GAMES = 10000;
         
     static int[] winner;
     
@@ -18,12 +18,13 @@ public class LoveLetterGame {
 
         // TODO: This only is correct for 3 and 4 players (for two players extra rules apply)
         List<Player> players = new ArrayList<Player>();
-        //players.add(new BestPlayer());
+        players.add(new BestPlayer());
         //players.add(new HigherCardPlayer());
+        players.add(new LowerCardPlayer());
+        //players.add(new RandomPlayer());
+        //players.add(new RandomPlayer());
         players.add(new RandomPlayer());
-        players.add(new RandomPlayer());
-        players.add(new RandomPlayer());
-        players.add(new RandomPlayer());
+        players.add(new RandomPrincessGuesser());
         
         winner = new int[players.size()];       
         

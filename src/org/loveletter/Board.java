@@ -211,10 +211,12 @@ public class Board {
             break;
             
         case Card.KING:  // change cards with otherPlayer
-            Log.traceAppend(" and exchanges cards with "+otherPlayer);
+            Log.traceAppend(" and exchanges cards with "+otherPlayer);            
             Card myCard = currentPlayer.card1;
             currentPlayer.card1 = otherPlayer.card1;
             otherPlayer.card1 = myCard;
+            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1);
+            otherPlayer.otherPlayerHasCard(currentPlayerId, currentPlayer.card1);
             break;
             
         case Card.COUNTESS:  

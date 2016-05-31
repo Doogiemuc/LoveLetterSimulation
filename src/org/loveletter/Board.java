@@ -21,7 +21,6 @@ public class Board {
     
     /** backup of cardStack at start of game */
     private List<Card> initialStack = null;
-
     
     /** players at the table */
     public List<Player> players;
@@ -45,21 +44,17 @@ public class Board {
      */
     public Board(List<Player> initPlayers) {
         this.playedCards  = new ArrayList<List<Card>>(initPlayers.size());
-        
-        // Tell all players that they play on this board
-        for (Player p : initPlayers)
-        	p.setBoard(this);
-        
+       
         //----- setup cardstack and shuffle
         cardstack = new ArrayList<Card>();
-        for (int i = Card.GUARD; i < Card.PRINCESS; i++) {
+        for (int i = Card.GUARD; i <= Card.PRINCESS; i++) {
             for (int j = 0; j < Card.NumCardsOfValue[i]; j++) {
                 Card card = new Card(i, Card.Name_EN[i]);
                 cardstack.add(card);
             }
         }
         Collections.shuffle(cardstack); 
-        this.initialStack = new ArrayList<Card>(cardstack);
+        initialStack = new ArrayList<Card>(cardstack);
         
         //----- seat players and deal cards to players
         players = new ArrayList<Player>(initPlayers);  // make copy
@@ -67,7 +62,7 @@ public class Board {
         for (int i = 0; i < players.size(); i++) {
             Player player = players.get(i);
             Card firstCard = cardstack.remove(0);
-            player.reset(i, firstCard, players.size());
+            player.reset(this, i, firstCard, players.size());
             playedCards.add(player.id, new ArrayList<Card>());
         }
     }
@@ -178,6 +173,7 @@ public class Board {
         switch (card.value) {
         case Card.GUARD: // Try to guess  card of other player
             int guessedValue = currentPlayer.guessCardValue();
+            assert(guessedValue != Card.GUARD);
             Log.traceAppend(" guesses "+guessedValue+" at "+otherPlayer);
             if (otherPlayer.hasCardValue(guessedValue) > 0) {
                 Log.traceAppend(" => CORRECT!");

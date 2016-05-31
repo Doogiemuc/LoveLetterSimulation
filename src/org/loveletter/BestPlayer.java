@@ -15,19 +15,13 @@ public class BestPlayer extends Player {
      */
     List<Card> knownCards;
     
-    /** cards that were already played. Including my own played cards. Highest index is played last. */
-    List<List<Card>> playedCards;
-
     @Override
-    public void reset(int id, Card firstCard, int numPlayers) {
-        super.reset(id, firstCard, numPlayers);
-        this.knownCards  = new ArrayList<Card>(numPlayers);
-        this.playedCards = new ArrayList<List<Card>>(numPlayers);
+    public void reset(Board board, int id, Card firstCard, int numPlayers) {
+        super.reset(board, id, firstCard, numPlayers);
+        this.knownCards  = new ArrayList<Card>(numPlayers);        
         for (int i = 0; i < numPlayers; i++) {
             knownCards.add(null);
-            playedCards.add(new ArrayList<Card>());
-        }
-        
+        }        
     }
     
     /**
@@ -192,14 +186,14 @@ public class BestPlayer extends Player {
         //----- otherwise guess a card value that is still most available 
         int[] numLeft = new int[Card.NumCardsOfValue.length];
         System.arraycopy(Card.NumCardsOfValue, 0, numLeft, 0, Card.NumCardsOfValue.length);
-        for (List<Card> playedCardsOfPlayer : this.playedCards) {
+        for (List<Card> playedCardsOfPlayer : board.playedCards) {
             for (Card card : playedCardsOfPlayer) {
                 numLeft[card.value]--;
             }
         }
         int maxValue   = 0;    // which value,
         int maxNumLeft = 0;    // has the most number of cards left
-        for (int value = 1; value < numLeft.length; value++) {  // value=0 GUARD must not be guessed!
+        for (int value = 2; value < numLeft.length; value++) {  // value=0 GUARD must not be guessed!
             if (numLeft[value] >= maxNumLeft) {
                 maxValue = value;
             }
@@ -252,23 +246,12 @@ public class BestPlayer extends Player {
         if (card2.value == value) return playCard2();
         throw new RuntimeException("cannot playValue"+value);
     }
-    
-    private Card playCardNumber(int num) {
-        if (num == 1) return playCard1();
-        if (num == 2) return playCard2();
-        throw new RuntimeException("cannot playCardNum "+num);
-    }
-    
+        
     /**
      * remember the played card and check if we still know the other card.
      */
     @Override
     public void cardPlayed(int id, Card card) {
-        //----- remember all played cards
-        if (this.playedCards.get(id) == null) {
-            this.playedCards.set(id, new ArrayList<Card>());
-        }        
-        this.playedCards.get(id).add(card);
         
         //----- If other player has played the card we knew, then we do not know his new card yet.
         if (knownCards.get(id) != null && knownCards.get(id).value == card.value) {

@@ -33,29 +33,20 @@ public abstract  class Player {
     /** random number generator */
     Random rand = new Random();
     
-    /** id and firstCard need to be initialized later when using this constructor */
+    /** Initialize player, need to call reset before play can happen */
     public Player() {
+    }
+        
+    /** reset this player for a new game 
+     * @param board TODO*/
+    public void reset(Board board, int id, Card firstCard, int numPlayers) {
+    	this.board = board;
+        this.id = id;
+        this.card1 = firstCard;
+        this.numPlayers = numPlayers;
         this.card2 = null;
         this.inGame = true;
         this.isGuarded = false;
-    }
-    
-    public Player(int id, Card firstCard, int numPlayers) {
-        this();
-        this.id = id;
-        this.card1 = firstCard;
-        this.card2 = null;
-        this.numPlayers = numPlayers;
-    }
-    
-    /** reset this player for a new game */
-    public void reset(int id, Card firstCard, int numPlayers) {
-        this.id = id;
-        this.card1 = firstCard;
-        this.card2 = null;
-        this.inGame = true;
-        this.isGuarded = false;
-        this.numPlayers = numPlayers;
     }
     
     /** is player still in game */
@@ -63,10 +54,6 @@ public abstract  class Player {
         this.inGame = inGame;
     }
     
-    public void setBoard(Board board) {
-    	this.board = board;
-    }
-
     /** drawn card will be set as card2 */
     public void drawCard(Card card) {
         this.card2 = card;
@@ -164,6 +151,9 @@ public abstract  class Player {
         return "P"+id+"["+card1+"]";
     }
 
+    
+    // Helper Methods
+    
     /**
      * get a random element from the set. This helper method can be used by Player subclasses if no other information is available
      * for choosing a player.

@@ -84,8 +84,19 @@ public class Board {
         currentPlayer.drawCard(topCard);
         
         Log.traceAppend(currentPlayer.toString()+" draws "+topCard);
+        
         //----- If player has to play the countess, then do it.
-        Card chosenCard = currentPlayer.mustPlayCountess();
+        Card chosenCard = null;
+        if ( currentPlayer.card1.value == Card.COUNTESS && 
+                (currentPlayer.card2.value == Card.KING || currentPlayer.card2.value == Card.PRINCE)) {
+                Log.traceAppend(" must play countess.");
+                chosenCard = currentPlayer.playCard1();
+                }
+        else if ( currentPlayer.card2.value == Card.COUNTESS && 
+                (currentPlayer.card1.value == Card.KING || currentPlayer.card1.value == Card.PRINCE)) {
+                Log.traceAppend(" and must play countess.");
+                chosenCard = currentPlayer.playCard2();
+        }
 
         //----- otherwise let the player choose a card he wants to play
         if (chosenCard == null) {
@@ -128,6 +139,9 @@ public class Board {
         Player currentPlayer = players.get(currentPlayerId);
         int    otherId       = -1;
         Player otherPlayer   = null;
+        
+        // Remove old MAID effect
+        currentPlayer.isGuarded = false;
         
         //----- choose otherPlayer for cards where that is necessary
         if (card.value == Card.GUARD  ||
@@ -193,6 +207,7 @@ public class Board {
             
         case Card.MAID: 
             // current player is safe as long as the maid is open in front of him
+        	currentPlayer.isGuarded = true;
             Log.traceAppend(" and is save.");
             break;
             

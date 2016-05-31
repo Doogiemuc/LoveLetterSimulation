@@ -78,36 +78,13 @@ public abstract  class Player {
         Card chosenCard = this.card1;
         card1 = card2;
         card2 = null;
-        isGuarded = (chosenCard.value == Card.MAID);
         return chosenCard;
     }
 
     protected Card playCard2() {
         Card chosenCard = this.card2;
         card2 = null;
-        isGuarded = (chosenCard.value == Card.MAID);
         return chosenCard;
-    }
-
-    /**
-     * IF player has countess and also king or prince,
-     * THEN he must play the countess.
-     * This method will check and also play the countess if necessary.
-     * If the player had the countess , then {@link #chooseCardtoPlay()} will not be called anymore.
-     * @return the countess if it must be played, otherwise null
-     */
-    public Card mustPlayCountess() {
-        if ( card1.value == Card.COUNTESS && 
-            (card2.value == Card.KING || card2.value == Card.PRINCE)) {
-            Log.traceAppend(" must play countess.");
-            return playCard1();
-            }
-        if ( card2.value == Card.COUNTESS && 
-            (card1.value == Card.KING || card1.value == Card.PRINCE)) {
-            Log.traceAppend(" and must play countess.");
-            return playCard2();
-        }
-        return null;
     }
     
     //----- implement these methods in sublcasses! -----------

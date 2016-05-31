@@ -44,20 +44,4 @@ public class LowCardHighProbability extends Player {
     	//It could be the case that only GUARDS are left -> guess nothing in this case.
     	return -1;
     }
-    
-    @Override
-    public void otherPlayerHasCard(int id, Card card) {
-        //empty. RandomPlayer doesn't remember any cards :-)
-    }
-    
-    @Override
-    public void cardPlayed(int id, Card card) {
-        //empty. RandomPlayer does not remember any cards.
-    }
-    
-    @Override
-    public String toString() {
-        return "LCHP["+card1+"]";
-    }
-
 }

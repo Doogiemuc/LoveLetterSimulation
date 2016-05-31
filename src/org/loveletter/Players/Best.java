@@ -185,26 +185,23 @@ public class Best extends Player {
         //----- if we know a players card, then guess it and throw him out
         Card knownCard = knownCards.get(guessPlayerId);
         if (knownCard != null) { 
+        	if (knownCard.value == Card.GUARD)
+        		return -1;
             return knownCard.value;
         }
             
         //----- otherwise guess a card value that is still most available 
-        int[] numLeft = new int[Card.NumCardsOfValue.length];
-        System.arraycopy(Card.NumCardsOfValue, 0, numLeft, 0, Card.NumCardsOfValue.length);
-        for (List<Card> playedCardsOfPlayer : board.playedCards) {
-            for (Card card : playedCardsOfPlayer) {
-                numLeft[card.value]--;
-            }
-        }
-        int maxValue   = 0;    // which value,
-        int maxNumLeft = 0;    // has the most number of cards left
-        for (int value = 2; value < numLeft.length; value++) {  // value=0 GUARD must not be guessed!
-            if (numLeft[value] >= maxNumLeft) {
-                maxValue = value;
-                maxNumLeft = numLeft[value];
-            }
-        }
-        return maxValue;
+    	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
+    		if (getCardsLeft(i) == 2)
+    				return i;
+    	}
+    	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
+    		if (getCardsLeft(i) == 1)
+    				return i;
+    	}
+    	
+    	//It could be the case that only GUARDS are left -> guess nothing in this case.
+    	return -1;
     }
 
     /** remember cards of other players, when we see them */
@@ -269,14 +266,16 @@ public class Best extends Player {
     
     @Override
     public String toString() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("Best");
-        buf.append("[");
-        buf.append(card1);
-        buf.append("]");
-        for (Card card : knownCards) {
-            buf.append(card != null ? card.value : ".");
+        StringBuffer buf = new StringBuffer();        
+        if (Log.logTRACE) {
+        	buf.append("[");
+        	buf.append(card1);
+        	buf.append(",");
+        	for (Card card : knownCards) {
+        		buf.append(card != null ? card.value : ".");
+        	}
+        	buf.append("]");
         }
-        return buf.toString();
+        return super.toString() + buf.toString();
     }
 }

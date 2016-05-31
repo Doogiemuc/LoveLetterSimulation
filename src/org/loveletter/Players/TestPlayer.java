@@ -34,20 +34,4 @@ public class TestPlayer extends Player {
     public int guessCardValue() {
         return Card.PRINCESS;
     }
-    
-    @Override
-    public void otherPlayerHasCard(int id, Card card) {
-        //empty. RandomPlayer doesn't remember any cards :-)
-    }
-    
-    @Override
-    public void cardPlayed(int id, Card card) {
-        //empty. RandomPlayer does not remember any cards.
-    }
-    
-    @Override
-    public String toString() {
-        return "Test["+card1+"]";
-    }
-
 }

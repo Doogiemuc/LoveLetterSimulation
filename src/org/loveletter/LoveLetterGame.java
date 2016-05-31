@@ -1,13 +1,19 @@
 package org.loveletter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import org.loveletter.Players.Best;
+import org.loveletter.Players.HighCard;
 import org.loveletter.Players.HighProbability;
+import org.loveletter.Players.LowCard;
 import org.loveletter.Players.LowCardHighProbability;
 import org.loveletter.Players.LowCardPrincess;
-import org.loveletter.Players.LowCard;
+import org.loveletter.Players.Random;
+import org.loveletter.Players.RandomPrincess;
 import org.loveletter.Players.TestPlayer;
 
 /**
@@ -21,25 +27,33 @@ public class LoveLetterGame {
         Log.logTRACE = false;
         Log.info("running ...");
 
-        List<Player> players = new ArrayList<Player>();
-        //players.add(new BestPlayer());
-        //players.add(new HigherCardPlayer());
-        players.add(new LowCard());
-        //players.add(new RandomPlayer());
-        //players.add(new RandomPlayer());        
-        //players.add(new RandomPlayer());
-        players.add(new HighProbability());
-        //players.add(new RandomPrincessGuesser());
-        players.add(new LowCardPrincess());
-        players.add(new LowCardHighProbability());
-        //players.add(new TestPlayer());
+        List<Player> playerPool = new ArrayList<Player>();
+        playerPool.add(new Best());
+        playerPool.add(new HighCard());
+        playerPool.add(new LowCard());
+        playerPool.add(new Random());
+        playerPool.add(new HighProbability());
+        playerPool.add(new RandomPrincess());
+        playerPool.add(new LowCardPrincess());
+        playerPool.add(new LowCardHighProbability());
+        playerPool.add(new TestPlayer());
         
-        assert(players.size() >= 3 && players.size() <= 4); //Extra rules apply for other player numbers
         HashMap<Player, Integer> wins = new HashMap<Player, Integer>();
-        for (Player p : players)
-        	wins.put(p, 0);
+        HashMap<Player, Integer> plays = new HashMap<Player, Integer>();
+        for (Player p : playerPool) {
+        	plays.put(p, 0);
+        	wins.put(p, 0);        	
+        }
         
+        List<Player> players = new ArrayList<Player>();
         for (int i = 0; i < NUM_GAMES; i++) {
+        	players.clear();
+        	Collections.shuffle(playerPool);
+        	for (int p = 0; p < 4; p++) {
+        		players.add(playerPool.get(p));
+        		plays.put(playerPool.get(p), plays.get(playerPool.get(p))+1);
+        	}
+        	            
             Board board = new Board(players);
             Log.traceAppend(board.getBoardShort());
             while (board.nextPlayer()) {
@@ -52,12 +66,20 @@ public class LoveLetterGame {
             }
         }
         
+        Collections.sort(playerPool, new Comparator<Player>() {
+			@Override
+			public int compare(Player p1, Player p2) {
+				if (((double)wins.get(p1)) / plays.get(p1) < ((double)wins.get(p2)) / plays.get(p2))
+					return 1;
+				return -1;	
+			}});
+        
         StringBuffer buf = new StringBuffer();
-        buf.append("Winners:");
-        for (Player p : players) {
-            buf.append(" "+p+":");
-            buf.append(((double)wins.get(p)) / NUM_GAMES * 100);
-            buf.append("%");
+        buf.append("Winners:\n");
+        for (Player p : playerPool) {
+            buf.append(" "+p+":\t");
+            buf.append(((double)wins.get(p)) / plays.get(p) * 100);
+            buf.append("%\n");
         }
         Log.info(buf.toString());
         

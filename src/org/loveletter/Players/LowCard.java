@@ -26,21 +26,5 @@ public class LowCard extends Player {
     public int guessCardValue() {
         return 2+rand.nextInt(7);      // card value (2-8)
     }
-
-    @Override
-    public void otherPlayerHasCard(int id, Card card) {
-        //HigherCardPlayer does not remember any cards.
-    }
-
-    @Override
-    public void cardPlayed(int id, Card card) {
-        //HigherCardPlayer does not remember any cards.
-    }
-
-    @Override
-    public String toString() {
-        return "Low["+card1+"]";
-    }
-
 }
 

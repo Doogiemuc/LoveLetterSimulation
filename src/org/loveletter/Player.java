@@ -135,7 +135,7 @@ public abstract  class Player {
      * @param id id of another player
      * @param card card of this other player
      */
-    public abstract void otherPlayerHasCard(int id, Card card);
+    public void otherPlayerHasCard(int id, Card card) {};
 
     /**
      * A player has played a card. 
@@ -143,11 +143,15 @@ public abstract  class Player {
      * @param id id of the player (can be my own id) 
      * @param card card value that was played
      */
-    public abstract void cardPlayed(int id, Card card);
+    public void cardPlayed(int id, Card card) {};
 
     @Override
     public String toString() {
-        return "P"+id+"["+card1+"]";
+    	String details = "";
+    	if (Log.logTRACE) {
+    		if (card1 != null) details += "["+card1+"]";
+    	}
+        return this.getClass().getSimpleName() + details;
     }
 
     

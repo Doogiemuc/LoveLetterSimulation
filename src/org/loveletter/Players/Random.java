@@ -35,20 +35,4 @@ public class Random extends Player {
     public int guessCardValue() {
         return 2+rand.nextInt(7);      // card value (2-8)
     }
-    
-    @Override
-    public void otherPlayerHasCard(int id, Card card) {
-        //empty. RandomPlayer doesn't remember any cards :-)
-    }
-    
-    @Override
-    public void cardPlayed(int id, Card card) {
-        //empty. RandomPlayer does not remember any cards.
-    }
-    
-    @Override
-    public String toString() {
-        return "Rand["+card1+"]";
-    }
-
 }

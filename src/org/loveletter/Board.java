@@ -49,6 +49,10 @@ public class Board {
         this.currentPlayerId = 0;
         this.gameStats = null;
         
+        // Tell all players that they play on this board
+        for (Player p : players)
+        	p.setBoard(this);
+        
         //----- setup cardstack and shuffle
         cardstack = new ArrayList<Card>(Card.Name_EN.length);
         for (int i = 0; i < Card.Name_EN.length; i++) {

@@ -1,5 +1,6 @@
 package org.loveletter;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -8,8 +9,11 @@ import java.util.Set;
  */
 public abstract  class Player {
 
+    /** Board this player is currently playing on */
+    Board board;
+    
     /** position of this player at the table */
-    int id;
+    int id;    
     
     /** The (first) card that this player has in hand */
     Card card1;
@@ -57,6 +61,10 @@ public abstract  class Player {
     /** is player still in game */
     public void setInGame(boolean inGame) {
         this.inGame = inGame;
+    }
+    
+    public void setBoard(Board board) {
+    	this.board = board;
     }
 
     /** drawn card will be set as card2 */
@@ -171,6 +179,24 @@ public abstract  class Player {
             counter++;
         }
         throw new RuntimeException("Not able to find random player.");
+    }
+    
+    /**
+     * get the unseen number of cards of the given type
+     * @param the card to be counted
+     * @return the number of cards of this type not seen
+     */
+    public int getCardsLeft(int card) {    	
+    	int left = Card.NumCardsOfValue[card-1]; // -1 because they start at 0 not 1
+    	if (card1.value == card)
+    		left--;
+    	if (card2 != null && card2.value == card)
+    		left--;
+    	for (List<Card> l : board.playedCards)
+    		for (Card c : l)
+    			if (c.value == card)
+    				left--;
+    	return left;
     }
 
     @Override

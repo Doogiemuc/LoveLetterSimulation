@@ -23,7 +23,7 @@ public class LoveLetterGame {
         players.add(new LowerCardPlayer());
         //players.add(new RandomPlayer());
         //players.add(new RandomPlayer());
-        players.add(new RandomPlayer());
+        players.add(new HighProbGuesser());
         players.add(new RandomPrincessGuesser());
         
         winner = new int[players.size()];       

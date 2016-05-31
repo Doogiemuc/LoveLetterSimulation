@@ -191,5 +191,11 @@ public abstract  class Player {
     				left--;
     	return left;
     }
+    
+    public Card playValue(int value) {
+        if (card1.value == value) return playCard1();
+        if (card2.value == value) return playCard2();
+        throw new RuntimeException("cannot playValue"+value);
+    }
   
 }

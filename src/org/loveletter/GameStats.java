@@ -49,9 +49,9 @@ public class GameStats {
             for (Card card : playedCards.get(player.id)) {
                 buf.append(card.value);
             }
-            buf.append(") ");
+            buf.append("), ");
         }
-        buf.append(", rounds="+roundsPlayed);
+        buf.append("rounds="+roundsPlayed);
         buf.append(", winners="+winners);
         buf.append("]");
         return buf.toString();

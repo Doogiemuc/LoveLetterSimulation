@@ -243,12 +243,6 @@ public class Best extends Player {
         }
         return highest;
     }
-    
-    private Card playValue(int value) {
-        if (card1.value == value) return playCard1();
-        if (card2.value == value) return playCard2();
-        throw new RuntimeException("cannot playValue"+value);
-    }
         
     /**
      * remember the played card and check if we still know the other card.

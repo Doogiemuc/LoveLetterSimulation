@@ -12,6 +12,7 @@ import org.loveletter.Players.HighProbability;
 import org.loveletter.Players.LowCard;
 import org.loveletter.Players.LowCardHighProbability;
 import org.loveletter.Players.LowCardPrincess;
+import org.loveletter.Players.MaidLowCardPrincess;
 import org.loveletter.Players.Random;
 import org.loveletter.Players.RandomPrincess;
 import org.loveletter.Players.TestPlayer;
@@ -21,7 +22,7 @@ import org.loveletter.Players.TestPlayer;
  *
  */
 public class LoveLetterGame {
-    public static final int NUM_GAMES = 10000;
+    public static final int NUM_GAMES = 100000;
             
     public static void main(String[] args) {
         Log.logTRACE = false;
@@ -36,6 +37,7 @@ public class LoveLetterGame {
         playerPool.add(new RandomPrincess());
         playerPool.add(new LowCardPrincess());
         playerPool.add(new LowCardHighProbability());
+        playerPool.add(new MaidLowCardPrincess());
         playerPool.add(new TestPlayer());
         
         HashMap<Player, Integer> wins = new HashMap<Player, Integer>();
@@ -66,6 +68,7 @@ public class LoveLetterGame {
             }
         }
         
+        // Sort playerPool by winratio
         Collections.sort(playerPool, new Comparator<Player>() {
 			@Override
 			public int compare(Player p1, Player p2) {
@@ -74,16 +77,23 @@ public class LoveLetterGame {
 				return -1;	
 			}});
         
+        // Output table of winners
         StringBuffer buf = new StringBuffer();
         buf.append("Winners:\n");
         for (Player p : playerPool) {
-            buf.append(" "+p+":\t");
+            buf.append(" "+pad(p+":", 25));
             buf.append(((double)wins.get(p)) / plays.get(p) * 100);
             buf.append("%\n");
         }
         Log.info(buf.toString());
         
     }
+    
+	public static String pad(String s, int i) {
+		while (s.length() <= i)
+			s+= ' ';
+		return s;
+	}
 
 }
 

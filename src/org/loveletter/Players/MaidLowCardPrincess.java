@@ -8,7 +8,7 @@ import org.loveletter.Player;
 /**
  * Test Player
  */
-public class TestPlayer extends Player {
+public class MaidLowCardPrincess extends Player {
     
     /** random play, but will never play princess */
     @Override

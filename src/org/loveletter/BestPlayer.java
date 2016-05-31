@@ -39,8 +39,7 @@ public class BestPlayer extends Player {
         if (card1.value > card2.value) {
             Card cc = card2;
             card2   = card1;
-            card1   = cc;
-            
+            card1   = cc;            
         }
         
         //Always keep princess and countess if possible

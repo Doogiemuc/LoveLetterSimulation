@@ -1,6 +1,7 @@
 package org.loveletter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -9,9 +10,7 @@ import java.util.List;
  */
 public class LoveLetterGame {
     public static final int NUM_GAMES = 10000;
-        
-    static int[] winner;
-    
+            
     public static void main(String[] args) {
         Log.logTRACE = false;
         Log.info("running ...");
@@ -20,13 +19,17 @@ public class LoveLetterGame {
         List<Player> players = new ArrayList<Player>();
         players.add(new BestPlayer());
         //players.add(new HigherCardPlayer());
-        players.add(new LowerCardPlayer());
+        //players.add(new LowerCardPlayer());
         //players.add(new RandomPlayer());
+        //players.add(new RandomPlayer());        
         //players.add(new RandomPlayer());
         players.add(new HighProbGuesser());
         players.add(new RandomPrincessGuesser());
+        players.add(new TestPlayer());
         
-        winner = new int[players.size()];       
+        HashMap<Player, Integer> wins = new HashMap<Player, Integer>();
+        for (Player p : players)
+        	wins.put(p, 0);
         
         for (int i = 0; i < NUM_GAMES; i++) {
             Board board = new Board(players);
@@ -37,15 +40,15 @@ public class LoveLetterGame {
             Log.trace(board.getBoardShort());
             Log.info(i+": "+board.gameStats.toString());
             for (Player player : board.gameStats.winners) {
-                winner[player.id]++;
+                wins.put(player, wins.get(player)+1);
             }
         }
         
         StringBuffer buf = new StringBuffer();
         buf.append("Winners:");
-        for (int i = 0; i < players.size(); i++) {
-            buf.append(" "+players.get(i)+":");
-            buf.append(((double)winner[i]) / NUM_GAMES * 100);
+        for (Player p : players) {
+            buf.append(" "+p+":");
+            buf.append(((double)wins.get(p)) / NUM_GAMES * 100);
             buf.append("%");
         }
         Log.info(buf.toString());

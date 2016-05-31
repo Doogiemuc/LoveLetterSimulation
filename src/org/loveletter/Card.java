@@ -14,13 +14,13 @@ public class Card {
     public static final int GUARD    = 1;
     
     public final static int[] NumCardsOfValue = {
-        5, 2, 2, 2, 2, 1, 1, 1      
+        0, 5, 2, 2, 2, 2, 1, 1, 1      // First Value does not represent a card
     };
     public static final String[] Name_EN = {
-        "GUARD", "PRIEST", "BARON", "MAID", "PRINCE", "KING", "COUNTESS", "PRINCESS"
+        "", "Guard", "Priest", "Baron", "Handmaid", "Prince", "King", "Countess", "Princess"
     };
     public static final String[] Name_DE = {
-        "Wächter", "Priester", "Baron", "Zofe", "Prinz", "König", "Gräfin", "Prinzessin"
+        "", "Wï¿½chter", "Priester", "Baron", "Zofe", "Prinz", "Kï¿½nig", "Grï¿½fin", "Prinzessin"
     };
 
     int value;   // card's value as printed on the card. (1-8)
@@ -32,15 +32,12 @@ public class Card {
     }
 
     public String toString() {
-        return this.value+this.name;
+        return Integer.toString(value); // Adding name make printing very long +this.name;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + value;
-        return result;
+        return value;
     }
 
     /**

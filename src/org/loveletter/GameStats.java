@@ -5,21 +5,20 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * statistics of one game after is has finished.
+ * Statistics of one game after is has finished.
  */
 public class GameStats {
     List<Card> initialStack;
     List<Player> players;
     int roundsPlayed = 0;
-    Set<Player> winners;
+    Set<Player> winners = new HashSet<Player>();
     List<List<Card>> playedCards;
 
     public GameStats(List<Card> initialStack, List<Player> players, int roundsPlayed, List<List<Card>> playedCards) {
-        Set<Player> winners = new HashSet<Player>(); 
         int highestValue = 0;
         for (Player player : players) {
             if (player.inGame && player.card1.value > highestValue) {
-                winners = new HashSet<Player>();
+                winners.clear();
                 winners.add(player);
                 highestValue = player.card1.value;
             } else
@@ -30,7 +29,6 @@ public class GameStats {
         this.initialStack = initialStack;
         this.players = players;
         this.roundsPlayed = roundsPlayed;
-        this.winners = winners;
         this.playedCards = playedCards;
     }
 

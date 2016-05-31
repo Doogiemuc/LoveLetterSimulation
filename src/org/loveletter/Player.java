@@ -187,7 +187,7 @@ public abstract  class Player {
      * @return the number of cards of this type not seen
      */
     public int getCardsLeft(int card) {    	
-    	int left = Card.NumCardsOfValue[card-1]; // -1 because they start at 0 not 1
+    	int left = Card.NumCardsOfValue[card]; 
     	if (card1.value == card)
     		left--;
     	if (card2 != null && card2.value == card)
@@ -198,29 +198,5 @@ public abstract  class Player {
     				left--;
     	return left;
     }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + id;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Player other = (Player) obj;
-        if (id != other.id)
-            return false;
-        return true;
-    }
-
-    
-
+  
 }

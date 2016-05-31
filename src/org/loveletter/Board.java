@@ -43,21 +43,18 @@ public class Board {
      * start a new game
      * @param players the competing players at the table 
      */
-    public Board(List<Player> players) {
-        this.playedCards  = new ArrayList<List<Card>>(players.size());
-        this.turn = 0;
-        this.currentPlayerId = 0;
-        this.gameStats = null;
+    public Board(List<Player> initPlayers) {
+        this.playedCards  = new ArrayList<List<Card>>(initPlayers.size());
         
         // Tell all players that they play on this board
-        for (Player p : players)
+        for (Player p : initPlayers)
         	p.setBoard(this);
         
         //----- setup cardstack and shuffle
-        cardstack = new ArrayList<Card>(Card.Name_EN.length);
-        for (int i = 0; i < Card.Name_EN.length; i++) {
+        cardstack = new ArrayList<Card>();
+        for (int i = Card.GUARD; i < Card.PRINCESS; i++) {
             for (int j = 0; j < Card.NumCardsOfValue[i]; j++) {
-                Card card = new Card(i+1, Card.Name_EN[i]);
+                Card card = new Card(i, Card.Name_EN[i]);
                 cardstack.add(card);
             }
         }
@@ -65,7 +62,8 @@ public class Board {
         this.initialStack = new ArrayList<Card>(cardstack);
         
         //----- seat players and deal cards to players
-        this.players = new ArrayList<Player>(players);  // make copy
+        players = new ArrayList<Player>(initPlayers);  // make copy
+        Collections.shuffle(players);
         for (int i = 0; i < players.size(); i++) {
             Player player = players.get(i);
             Card firstCard = cardstack.remove(0);
@@ -172,7 +170,6 @@ public class Board {
             // let Player decide whom to choose
             otherId = currentPlayer.getPlayerFor(card.value, availablePlayerIds);
             if (!availablePlayerIds.contains(otherId)) {
-                Log.error(currentPlayer+" has chosen invalid otherId="+otherId+" not in "+availablePlayerIds+" for "+card.value+ "=> will ignore");
                 throw new RuntimeException(currentPlayer + " selected incorrect PlayerID " + otherId);
             }
             otherPlayer = players.get(otherId);

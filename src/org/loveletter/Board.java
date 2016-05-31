@@ -60,10 +60,9 @@ public class Board {
         players = new ArrayList<Player>(initPlayers);  // make copy
         Collections.shuffle(players);
         for (int i = 0; i < players.size(); i++) {
-            Player player = players.get(i);
             Card firstCard = cardstack.remove(0);
-            player.reset(this, i, firstCard, players.size());
-            playedCards.add(player.id, new ArrayList<Card>());
+            players.get(i).reset(this, i, firstCard, players.size());
+            playedCards.add(i, new ArrayList<Card>());
         }
     }
 
@@ -72,8 +71,8 @@ public class Board {
      * @return false when game is finished (only one card left in the stack or only one player left)
      */
     public boolean nextPlayer() {
-        if (isGameFinished()) return false;        
-        this.turn++;
+        assert(!isGameFinished());        
+        turn++;
         
         //----- currentPlayer draws a card 
         Card topCard = cardstack.remove(0);
@@ -164,9 +163,7 @@ public class Board {
             }
             // let Player decide whom to choose
             otherId = currentPlayer.getPlayerFor(card.value, availablePlayerIds);
-            if (!availablePlayerIds.contains(otherId)) {
-                throw new RuntimeException(currentPlayer + " selected incorrect PlayerID " + otherId);
-            }
+            assert(availablePlayerIds.contains(otherId));
             otherPlayer = players.get(otherId);
         }
         
@@ -210,14 +207,14 @@ public class Board {
             
         case Card.PRINCE:  // discard card and draw a new one (player may have chosen other player or himself) 
             Log.traceAppend(": "+otherPlayer);
-            Card topCard = cardstack.remove(0);
-            otherPlayer.drawCard(topCard);
             Card discarded = otherPlayer.playCard1();  // Discard card, without effect on other players
             playedCards.get(otherId).add(discarded);
             if (discarded.value == Card.PRINCESS) {
                 otherPlayer.setInGame(false);
                 Log.traceAppend(" has to discard the princess and is OUT.");
             } else {
+            	Card topCard = cardstack.remove(0);
+                otherPlayer.drawCard(topCard);
                 Log.traceAppend(" discards his card and draws "+topCard);
             }
             break;
@@ -233,7 +230,7 @@ public class Board {
             
         case Card.COUNTESS:  
             // Countess must be played if player also has king or prince
-            // This case is handled in Player.mustPlayCountess() !!
+            // This case is handled already when selecting the card to play
             Log.traceAppend(" voluntarily.");
             break;
         
@@ -281,14 +278,13 @@ public class Board {
         for (Player player : players) {
             buf.append("(");
             buf.append(player.inGame ? " " : "X");
-            buf.append(player.card1.value);
-            if (player.card2 != null) {
+            if (player.card1 != null)
+            	buf.append(player.card1.value);
+            if (player.card2 != null)
                 buf.append(player.card2.value);
-            }
             buf.append(")");
-            for (Card card : this.playedCards.get(player.id)) {
+            for (Card card : this.playedCards.get(player.id))
                 buf.append(card.value);
-            }
             buf.append(" ");
         }
         return buf.toString();

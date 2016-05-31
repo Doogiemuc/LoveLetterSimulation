@@ -10,7 +10,7 @@ public class RandomPrincessGuesser extends Player {
     /** random play, but will never play princess */
     @Override
     public Card chooseCardtoPlay() {
-        if (card1 == null || card2 == null) throw new RuntimeException("Cannot choose card. I have only one!");
+        assert(card1 != null && card2 != null);
         if (card1.value == Card.PRINCESS) return playCard2();
         if (card2.value == Card.PRINCESS) return playCard1();
         return rand.nextBoolean() ? playCard1() : playCard2();

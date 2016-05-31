@@ -56,7 +56,10 @@ public abstract  class Player {
     
     /** drawn card will be set as card2 */
     public void drawCard(Card card) {
-        this.card2 = card;
+    	if (card1 == null)
+    		card1 = card;
+    	else 
+    		card2 = card;
     }
 
     /** 
@@ -64,7 +67,7 @@ public abstract  class Player {
      * @return number of card (1 or 2) if he has it, 0 otherwise
      */
     public int hasCardValue(int val) {
-        if (card1.value == val) return 1;
+        if (card1 != null && card1.value == val) return 1;
         if (card2 != null && card2.value == val) return 2;
         return 0;
     }

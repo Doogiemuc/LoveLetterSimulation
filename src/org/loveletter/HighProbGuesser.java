@@ -2,8 +2,6 @@ package org.loveletter;
 
 import java.util.Set;
 
-import javax.management.RuntimeErrorException;
-
 /**
  * A player that always play's a random card and guesses the highest card with most unseen copies left.
  */
@@ -12,7 +10,7 @@ public class HighProbGuesser extends Player {
     /** random play, but will never play princess */
     @Override
     public Card chooseCardtoPlay() {
-        if (card1 == null || card2 == null) throw new RuntimeException("Cannot choose card. I have only one!");
+        assert(card1 != null && card2 != null);
         if (card1.value == Card.PRINCESS) return playCard2();
         if (card2.value == Card.PRINCESS) return playCard1();
         return rand.nextBoolean() ? playCard1() : playCard2();
@@ -32,7 +30,7 @@ public class HighProbGuesser extends Player {
      */
     @Override
     public int guessCardValue() {
-    	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
+    	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
     		if (getCardsLeft(i) == 2)
     				return i;
     	}
@@ -41,7 +39,7 @@ public class HighProbGuesser extends Player {
     				return i;
     	}
     	
-    	//It could be the case that only GUARDS are left guess nothing in this case.
+    	//It could be the case that only GUARDS are left -> guess nothing in this case.
     	return -1;
     }
     

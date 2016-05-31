@@ -196,6 +196,7 @@ public class BestPlayer extends Player {
         for (int value = 2; value < numLeft.length; value++) {  // value=0 GUARD must not be guessed!
             if (numLeft[value] >= maxNumLeft) {
                 maxValue = value;
+                maxNumLeft = numLeft[value];
             }
         }
         return maxValue;

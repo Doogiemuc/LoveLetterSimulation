@@ -23,12 +23,10 @@ public class Card {
         "", "W�chter", "Priester", "Baron", "Zofe", "Prinz", "K�nig", "Gr�fin", "Prinzessin"
     };
 
-    int value;   // card's value as printed on the card. (1-8)
-    String name;
+    public int value;   // card's value as printed on the card. (1-8)
     
-    public Card(int value, String name) {
+    public Card(int value) {
         this.value = value;
-        this.name  = name;
     }
 
     public String toString() {

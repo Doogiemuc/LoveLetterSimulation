@@ -10,28 +10,25 @@ import java.util.Set;
 public abstract  class Player {
 
     /** Board this player is currently playing on */
-    Board board;
+    public Board board;
     
     /** position of this player at the table */
-    int id;    
+    public int id;    
     
     /** The (first) card that this player has in hand */
-    Card card1;
+    public Card card1;
     
     /** the card that was just drawn. Card2 is null when its not this player's turn. */
-    Card card2;
+    public Card card2;
 
     /** is this player still in the game? */
-    boolean inGame;
+    public boolean inGame;
     
     /** is this player currently guarded, because he has played a guard */
-    boolean isGuarded;
-    
-    /** overall number of players in the game (including myself) */
-    int numPlayers;
-    
+    public boolean isGuarded;
+        
     /** random number generator */
-    Random rand = new Random();
+    public Random rand = new Random();
     
     /** Initialize player, need to call reset before play can happen */
     public Player() {
@@ -39,11 +36,10 @@ public abstract  class Player {
         
     /** reset this player for a new game 
      * @param board TODO*/
-    public void reset(Board board, int id, Card firstCard, int numPlayers) {
+    public void reset(Board board, int id, Card firstCard) {
     	this.board = board;
         this.id = id;
         this.card1 = firstCard;
-        this.numPlayers = numPlayers;
         this.card2 = null;
         this.inGame = true;
         this.isGuarded = false;

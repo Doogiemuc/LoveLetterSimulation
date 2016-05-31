@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.loveletter.Players.HighProbability;
+import org.loveletter.Players.LowCardHighProbability;
+import org.loveletter.Players.LowCardPrincess;
+import org.loveletter.Players.LowCard;
+import org.loveletter.Players.TestPlayer;
+
 /**
  * Simulate Love Letter card game
  *
@@ -15,18 +21,20 @@ public class LoveLetterGame {
         Log.logTRACE = false;
         Log.info("running ...");
 
-        // TODO: This only is correct for 3 and 4 players (for two players extra rules apply)
         List<Player> players = new ArrayList<Player>();
-        players.add(new BestPlayer());
+        //players.add(new BestPlayer());
         //players.add(new HigherCardPlayer());
-        //players.add(new LowerCardPlayer());
+        players.add(new LowCard());
         //players.add(new RandomPlayer());
         //players.add(new RandomPlayer());        
         //players.add(new RandomPlayer());
-        players.add(new HighProbGuesser());
-        players.add(new RandomPrincessGuesser());
-        players.add(new TestPlayer());
+        players.add(new HighProbability());
+        //players.add(new RandomPrincessGuesser());
+        players.add(new LowCardPrincess());
+        players.add(new LowCardHighProbability());
+        //players.add(new TestPlayer());
         
+        assert(players.size() >= 3 && players.size() <= 4); //Extra rules apply for other player numbers
         HashMap<Player, Integer> wins = new HashMap<Player, Integer>();
         for (Player p : players)
         	wins.put(p, 0);

@@ -1,11 +1,14 @@
-package org.loveletter;
+package org.loveletter.Players;
 
 import java.util.Set;
+
+import org.loveletter.Card;
+import org.loveletter.Player;
 
 /**
  * This player always plays the card with the higher value
  */
-public class HigherCardPlayer extends Player {
+public class HighCard extends Player {
     
     /** Always chose card with <b>higher</b> value, unless it is the princess. */
     @Override
@@ -39,7 +42,7 @@ public class HigherCardPlayer extends Player {
 
     @Override
     public String toString() {
-        return "High"+id+"["+card1+"]";
+        return "High["+card1+"]";
     }
 
 }

@@ -1,13 +1,18 @@
-package org.loveletter;
+package org.loveletter.Players;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.loveletter.Board;
+import org.loveletter.Card;
+import org.loveletter.Log;
+import org.loveletter.Player;
+
 /**
  * Player with the best strategy I could think of.
  */
-public class BestPlayer extends Player {
+public class Best extends Player {
     /** 
      * Cards that we have seen from <b>other</b> players.
      * May contain null elements for cards of other players that we have not seen yet or do not know anymore!
@@ -16,10 +21,10 @@ public class BestPlayer extends Player {
     List<Card> knownCards;
     
     @Override
-    public void reset(Board board, int id, Card firstCard, int numPlayers) {
-        super.reset(board, id, firstCard, numPlayers);
-        this.knownCards  = new ArrayList<Card>(numPlayers);        
-        for (int i = 0; i < numPlayers; i++) {
+    public void reset(Board board, int id, Card firstCard) {
+        super.reset(board, id, firstCard);
+        this.knownCards  = new ArrayList<Card>(board.players.size());        
+        for (int i = 0; i < board.players.size(); i++) {
             knownCards.add(null);
         }        
     }
@@ -266,10 +271,9 @@ public class BestPlayer extends Player {
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("Best");
-        buf.append(id);
-        buf.append("(");
+        buf.append("[");
         buf.append(card1);
-        buf.append(")");
+        buf.append("]");
         for (Card card : knownCards) {
             buf.append(card != null ? card.value : ".");
         }

@@ -1,26 +1,21 @@
-package org.loveletter;
+package org.loveletter.Players;
 
 import java.util.Set;
 
+import org.loveletter.Card;
+import org.loveletter.Player;
+
 /**
- * Test Player
+ * A player that always play's a random card and guesses the highest card with most unseen copies left.
  */
-public class TestPlayer extends Player {
+public class HighProbability extends Player {
     
     /** random play, but will never play princess */
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
-        
-        //  sort cards so that card2 has the higher value
-        if (card1.value > card2.value) {
-            Card cc = card2;
-            card2   = card1;
-            card1   = cc;            
-        }
-        
+        if (card1.value == Card.PRINCESS) return playCard2();
         if (card2.value == Card.PRINCESS) return playCard1();
-        
         return rand.nextBoolean() ? playCard1() : playCard2();
     }
     
@@ -38,7 +33,17 @@ public class TestPlayer extends Player {
      */
     @Override
     public int guessCardValue() {
-        return Card.PRINCESS;
+    	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
+    		if (getCardsLeft(i) == 2)
+    				return i;
+    	}
+    	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
+    		if (getCardsLeft(i) == 1)
+    				return i;
+    	}
+    	
+    	//It could be the case that only GUARDS are left -> guess nothing in this case.
+    	return -1;
     }
     
     @Override
@@ -53,7 +58,7 @@ public class TestPlayer extends Player {
     
     @Override
     public String toString() {
-        return "Test"+id+"["+card1+"]";
+        return "HPG["+card1+"]";
     }
 
 }

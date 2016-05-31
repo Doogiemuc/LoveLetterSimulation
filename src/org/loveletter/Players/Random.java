@@ -1,11 +1,14 @@
-package org.loveletter;
+package org.loveletter.Players;
 
 import java.util.Set;
+
+import org.loveletter.Card;
+import org.loveletter.Player;
 
 /**
  * A player that always play's a random card.
  */
-public class RandomPlayer extends Player {
+public class Random extends Player {
     
     /** random play, but will never play princess */
     @Override
@@ -45,7 +48,7 @@ public class RandomPlayer extends Player {
     
     @Override
     public String toString() {
-        return "Rand"+id+"["+card1+"]";
+        return "Rand["+card1+"]";
     }
 
 }

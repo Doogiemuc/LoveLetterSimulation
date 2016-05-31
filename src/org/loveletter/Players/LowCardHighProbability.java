@@ -1,19 +1,21 @@
-package org.loveletter;
+package org.loveletter.Players;
 
 import java.util.Set;
 
+import org.loveletter.Card;
+import org.loveletter.Player;
+
 /**
- * A player that always play's a random card and guesses the highest card with most unseen copies left.
+ * Test Player
  */
-public class HighProbGuesser extends Player {
+public class LowCardHighProbability extends Player {
     
-    /** random play, but will never play princess */
+    /** Play low card */
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
-        if (card1.value == Card.PRINCESS) return playCard2();
-        if (card2.value == Card.PRINCESS) return playCard1();
-        return rand.nextBoolean() ? playCard1() : playCard2();
+        
+        return card1.value < card2.value ? playCard1() : playCard2(); 
     }
     
     /**
@@ -55,7 +57,7 @@ public class HighProbGuesser extends Player {
     
     @Override
     public String toString() {
-        return "HPG"+id+"["+card1+"]";
+        return "LCHP["+card1+"]";
     }
 
 }

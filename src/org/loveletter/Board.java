@@ -49,7 +49,7 @@ public class Board {
         cardstack = new ArrayList<Card>();
         for (int i = Card.GUARD; i <= Card.PRINCESS; i++) {
             for (int j = 0; j < Card.NumCardsOfValue[i]; j++) {
-                Card card = new Card(i, Card.Name_EN[i]);
+                Card card = new Card(i);
                 cardstack.add(card);
             }
         }
@@ -61,7 +61,7 @@ public class Board {
         Collections.shuffle(players);
         for (int i = 0; i < players.size(); i++) {
             Card firstCard = cardstack.remove(0);
-            players.get(i).reset(this, i, firstCard, players.size());
+            players.get(i).reset(this, i, firstCard);
             playedCards.add(i, new ArrayList<Card>());
         }
     }

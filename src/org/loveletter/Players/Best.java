@@ -1,9 +1,7 @@
 package org.loveletter.Players;
 
-import java.util.ArrayList;
 import java.util.Set;
 
-import org.loveletter.Board;
 import org.loveletter.Card;
 import org.loveletter.Log;
 import org.loveletter.Player;

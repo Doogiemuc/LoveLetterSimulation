@@ -14,6 +14,10 @@ public class TestPlayer extends Player {
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
+        
+        //Can I throw out another player because we know his card and we can guess with guard?
+        if (hasCardValue(Card.GUARD) > 0 && highestKnownValue() > Card.GUARD) 
+        	return playValue(Card.GUARD);
                 
         // Play maid if have one
         if (hasCardValue(Card.MAID)>0) 

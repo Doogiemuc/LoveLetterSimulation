@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.loveletter.Players.Best;
+import org.loveletter.Players.CheatingLooker;
 import org.loveletter.Players.High;
 import org.loveletter.Players.HighCard;
 import org.loveletter.Players.HighProbability;
@@ -34,6 +35,8 @@ public class LoveLetterGame {
 
         // Create a pool of players from which random players are selected for a game
         List<Player> playerPool = new ArrayList<Player>();
+        
+        // Real players        
         playerPool.add(new Best());
         playerPool.add(new HighCard());
         playerPool.add(new LowCard());
@@ -48,6 +51,9 @@ public class LoveLetterGame {
         playerPool.add(new LowCardHigh());
         playerPool.add(new LowBrain());
         playerPool.add(new TestPlayer());
+        
+        // Cheaters -- Do not include in fair comparison
+        //playerPool.add(new CheatingLooker());
         
         // Initialize statistics
         HashMap<Player, Integer> wins = new HashMap<Player, Integer>();

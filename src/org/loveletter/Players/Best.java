@@ -23,7 +23,7 @@ public class Best extends Player {
     @Override
     public void reset(Board board, int id, Card firstCard) {
         super.reset(board, id, firstCard);
-        this.knownCards  = new ArrayList<Card>(board.players.size());        
+        this.knownCards = new ArrayList<Card>(board.players.size());        
         for (int i = 0; i < board.players.size(); i++) {
             knownCards.add(null);
         }        

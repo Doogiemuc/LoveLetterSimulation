@@ -6,26 +6,17 @@ import org.loveletter.Card;
 import org.loveletter.Player;
 
 /**
- * Test Player
+ * A player that always play's a random card and guesses the highest card left.
  */
-public class TestPlayer extends Player {
+public class High extends Player {
     
-    /** Testing */
+    /** random play, but will never play princess */
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
-                
-        // Play maid if have one
-        if (hasCardValue(Card.MAID)>0) 
-        	return playValue(Card.MAID);
-        
-        // If Baron and prince play prince
-        if (hasCardValue(Card.BARON)>0 &&
-        	hasCardValue(Card.PRINCE)>0)
-        	return playValue(Card.PRINCE);        
-                
-        // Play lower card
-        return card1.value < card2.value ? playCard1() : playCard2(); 
+        if (card1.value == Card.PRINCESS) return playCard2();
+        if (card2.value == Card.PRINCESS) return playCard1();
+        return rand.nextBoolean() ? playCard1() : playCard2();
     }
     
     /**
@@ -42,11 +33,12 @@ public class TestPlayer extends Player {
      */
     @Override
     public int guessCardValue() {
-    	// Guess highest card that is left at least once
     	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
     		if (getCardsLeft(i) > 0)
     				return i;
     	}
-        return -1;
+    	
+    	//It could be the case that only GUARDS are left -> guess nothing in this case.
+    	return -1;
     }
 }

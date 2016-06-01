@@ -36,7 +36,8 @@ public class Log {
     }
     
     public static void traceAppend(String msg) {
-        buf.append(msg);
+    	if (logTRACE)
+    		buf.append(msg);
     }
     
     public static void traceFlush() {

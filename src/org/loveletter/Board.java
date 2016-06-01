@@ -58,7 +58,6 @@ public class Board {
         
         //----- seat players and deal cards to players
         players = new ArrayList<Player>(initPlayers);  // make copy
-        Collections.shuffle(players);
         for (int i = 0; i < players.size(); i++) {
             Card firstCard = cardstack.remove(0);
             players.get(i).reset(this, i, firstCard);

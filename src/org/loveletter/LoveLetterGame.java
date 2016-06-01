@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.loveletter.Players.Best;
+import org.loveletter.Players.High;
 import org.loveletter.Players.HighCard;
 import org.loveletter.Players.HighProbability;
 import org.loveletter.Players.LowCard;
+import org.loveletter.Players.LowCardHigh;
 import org.loveletter.Players.LowCardHighProbability;
 import org.loveletter.Players.LowCardPrincess;
+import org.loveletter.Players.MaidLowCardHigh;
 import org.loveletter.Players.MaidLowCardPrincess;
 import org.loveletter.Players.Random;
 import org.loveletter.Players.RandomPrincess;
@@ -28,6 +31,7 @@ public class LoveLetterGame {
         Log.logTRACE = false;
         Log.info("running ...");
 
+        // Create a pool of players from which random players are selected for a game
         List<Player> playerPool = new ArrayList<Player>();
         playerPool.add(new Best());
         playerPool.add(new HighCard());
@@ -38,8 +42,12 @@ public class LoveLetterGame {
         playerPool.add(new LowCardPrincess());
         playerPool.add(new LowCardHighProbability());
         playerPool.add(new MaidLowCardPrincess());
+        playerPool.add(new MaidLowCardHigh());
+        playerPool.add(new High());
+        playerPool.add(new LowCardHigh());
         playerPool.add(new TestPlayer());
         
+        // Initialize statistics
         HashMap<Player, Integer> wins = new HashMap<Player, Integer>();
         HashMap<Player, Integer> plays = new HashMap<Player, Integer>();
         for (Player p : playerPool) {
@@ -49,18 +57,20 @@ public class LoveLetterGame {
         
         List<Player> players = new ArrayList<Player>();
         for (int i = 0; i < NUM_GAMES; i++) {
+        	
+        	// Pick four random players from the pool for a game
         	players.clear();
         	Collections.shuffle(playerPool);
         	for (int p = 0; p < 4; p++) {
         		players.add(playerPool.get(p));
         		plays.put(playerPool.get(p), plays.get(playerPool.get(p))+1);
         	}
-        	            
+        	
+        	// Play the game
             Board board = new Board(players);
             Log.traceAppend(board.getBoardShort());
-            while (board.nextPlayer()) {
+            while (board.nextPlayer())
                 Log.traceAppend(board.getBoardShort());
-            }
             Log.trace(board.getBoardShort());
             Log.info(i+": "+board.gameStats.toString());
             for (Player player : board.gameStats.winners) {

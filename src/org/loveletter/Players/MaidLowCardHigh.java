@@ -6,9 +6,9 @@ import org.loveletter.Card;
 import org.loveletter.Player;
 
 /**
- * Test Player
+ * Play Maid, else lowest card. Guess highest card left.
  */
-public class TestPlayer extends Player {
+public class MaidLowCardHigh extends Player {
     
     /** Testing */
     @Override
@@ -17,12 +17,7 @@ public class TestPlayer extends Player {
                 
         // Play maid if have one
         if (hasCardValue(Card.MAID)>0) 
-        	return playValue(Card.MAID);
-        
-        // If Baron and prince play prince
-        if (hasCardValue(Card.BARON)>0 &&
-        	hasCardValue(Card.PRINCE)>0)
-        	return playValue(Card.PRINCE);        
+        	return playValue(Card.MAID);          
                 
         // Play lower card
         return card1.value < card2.value ? playCard1() : playCard2(); 

@@ -7,20 +7,21 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.loveletter.Players.Best;
-import org.loveletter.Players.Random_High;
 import org.loveletter.Players.High_Random;
-import org.loveletter.Players.Random_HighProbability;
 import org.loveletter.Players.KillMaidLow_BrainHigh;
+import org.loveletter.Players.KillMaidPriestLow_BrainHigh;
 import org.loveletter.Players.Low_BrainHigh;
-import org.loveletter.Players.Low_Random;
 import org.loveletter.Players.Low_High;
 import org.loveletter.Players.Low_HighProbability;
 import org.loveletter.Players.Low_Princess;
+import org.loveletter.Players.Low_Random;
 import org.loveletter.Players.MaidLow_BrainHigh;
 import org.loveletter.Players.MaidLow_High;
 import org.loveletter.Players.MaidLow_Princess;
-import org.loveletter.Players.Random_Random;
+import org.loveletter.Players.Random_High;
+import org.loveletter.Players.Random_HighProbability;
 import org.loveletter.Players.Random_Princess;
+import org.loveletter.Players.Random_Random;
 import org.loveletter.Players.TestPlayer;
 
 /**
@@ -28,7 +29,7 @@ import org.loveletter.Players.TestPlayer;
  *
  */
 public class LoveLetterGame {
-    public static final int NUM_GAMES = 100000;
+    public static final int NUM_GAMES = 1000000;
             
     public static void main(String[] args) {
         Log.logTRACE = false;
@@ -53,6 +54,7 @@ public class LoveLetterGame {
         playerPool.add(new Low_BrainHigh());
         playerPool.add(new MaidLow_BrainHigh());
         playerPool.add(new KillMaidLow_BrainHigh());
+        playerPool.add(new KillMaidPriestLow_BrainHigh());
         playerPool.add(new TestPlayer());
         
         // Cheaters -- Do not include in fair comparison

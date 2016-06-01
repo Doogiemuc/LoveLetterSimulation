@@ -168,7 +168,7 @@ public class Board {
         
         switch (card.value) {
         case Card.GUARD: // Try to guess  card of other player
-            int guessedValue = currentPlayer.guessCardValue();
+            int guessedValue = currentPlayer.guessCardValue(otherPlayer.id);
             assert(guessedValue != Card.GUARD);
             Log.traceAppend(" guesses "+guessedValue+" at "+otherPlayer);
             if (otherPlayer.hasCardValue(guessedValue) > 0) {

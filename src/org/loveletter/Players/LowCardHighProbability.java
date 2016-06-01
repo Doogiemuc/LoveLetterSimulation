@@ -31,7 +31,7 @@ public class LowCardHighProbability extends Player {
      * @return value to guess (2-8). Guessing a Guard is not allowed
      */
     @Override
-    public int guessCardValue() {
+    public int guessCardValue(int playerId) {
     	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
     		if (getCardsLeft(i) == 2)
     				return i;

@@ -6,34 +6,21 @@ import org.loveletter.Card;
 import org.loveletter.Player;
 
 /**
- * Test Player
+ * Play lowest card, guess from memory else highest
  */
-public class TestPlayer extends Player {
+public class LowBrain extends Player {
     
     /** Testing */
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
-                
-        // Play maid if have one
-        if (hasCardValue(Card.MAID)>0) 
-        	return playValue(Card.MAID);
-        
-        // If Baron and prince play prince
-        if (hasCardValue(Card.BARON)>0 &&
-        	hasCardValue(Card.PRINCE)>0)
-        	return playValue(Card.PRINCE);
-        
-        // Play Priest if have one
-        if (hasCardValue(Card.PRIEST)>0) 
-        	return playValue(Card.PRIEST);        
                         
         // Play lower card
         return card1.value < card2.value ? playCard1() : playCard2(); 
     }
     
     /**
-     * always returns a random other player
+     * Return player with known card else returns a random other player
      */
     @Override
     public int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds) {

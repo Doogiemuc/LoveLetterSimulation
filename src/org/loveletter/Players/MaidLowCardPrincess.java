@@ -33,7 +33,7 @@ public class MaidLowCardPrincess extends Player {
      * @return value to guess (2-8). Guessing a Guard is not allowed
      */
     @Override
-    public int guessCardValue() {
+    public int guessCardValue(int playerId) {
         return Card.PRINCESS;
     }
 }

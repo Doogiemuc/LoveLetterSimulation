@@ -23,7 +23,7 @@ public class LowCard extends Player {
     }
 
     @Override
-    public int guessCardValue() {
+    public int guessCardValue(int playerId) {
         return 2+rand.nextInt(7);      // card value (2-8)
     }
 }

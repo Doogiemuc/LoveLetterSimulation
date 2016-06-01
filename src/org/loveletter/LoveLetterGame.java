@@ -10,6 +10,7 @@ import org.loveletter.Players.Best;
 import org.loveletter.Players.High;
 import org.loveletter.Players.HighCard;
 import org.loveletter.Players.HighProbability;
+import org.loveletter.Players.LowBrain;
 import org.loveletter.Players.LowCard;
 import org.loveletter.Players.LowCardHigh;
 import org.loveletter.Players.LowCardHighProbability;
@@ -45,6 +46,7 @@ public class LoveLetterGame {
         playerPool.add(new MaidLowCardHigh());
         playerPool.add(new High());
         playerPool.add(new LowCardHigh());
+        playerPool.add(new LowBrain());
         playerPool.add(new TestPlayer());
         
         // Initialize statistics

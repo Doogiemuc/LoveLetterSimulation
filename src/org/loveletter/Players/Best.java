@@ -1,7 +1,6 @@
 package org.loveletter.Players;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import org.loveletter.Board;
@@ -13,21 +12,6 @@ import org.loveletter.Player;
  * Player with the best strategy I could think of.
  */
 public class Best extends Player {
-    /** 
-     * Cards that we have seen from <b>other</b> players.
-     * May contain null elements for cards of other players that we have not seen yet or do not know anymore!
-     * My own cards are not listed!
-     */
-    List<Card> knownCards;
-    
-    @Override
-    public void reset(Board board, int id, Card firstCard) {
-        super.reset(board, id, firstCard);
-        this.knownCards = new ArrayList<Card>(board.players.size());        
-        for (int i = 0; i < board.players.size(); i++) {
-            knownCards.add(null);
-        }        
-    }
     
     /**
      * Very clever player :-) Read the code for my secret strategies.
@@ -154,25 +138,6 @@ public class Best extends Player {
             Log.error("Wrong card Value in getOtherPlayerFor: "+cardValue);
             return -1;
         }
-
-    }
-
-
-    /**
-     * @param availablePlayerIds list of player IDs to choose from
-     * @return id of another player that has the highest card we know of. Or -1 if we do not know any other cards yet.
-     */
-    private int getPlayerWithHighestCard(Set<Integer> availablePlayerIds) {
-        int maxValue = 0; 
-        int otherId = -1;
-        for (Integer availableId : availablePlayerIds) {                //Collections.max() is not null save! :-(
-            Card knownCard = knownCards.get(availableId);
-            if (knownCard != null && knownCard.value > maxValue) {
-                maxValue = knownCard.value;
-                otherId = availableId;
-            }
-        }
-        return otherId;
     }
 
     /**
@@ -181,7 +146,7 @@ public class Best extends Player {
      * @return guessed card value of other player
      */
     @Override
-    public int guessCardValue() {
+    public int guessCardValue(int playerId) {
         //----- if we know a players card, then guess it and throw him out
         Card knownCard = knownCards.get(guessPlayerId);
         if (knownCard != null) { 
@@ -204,60 +169,6 @@ public class Best extends Player {
     	return -1;
     }
 
-    /** remember cards of other players, when we see them */
-    @Override
-    public void otherPlayerHasCard(int id, Card card) {
-        if (id == this.id) throw new RuntimeException("otherPlayerHasCard should not have been called with my own id");
-        knownCards.set(id, card);
-    }
-    
-    public boolean knowAnyCard() {
-        for (Card card : knownCards) {
-            if (card != null) return true;
-        }
-        return false;
-    }
-    
-    /**
-     * @return the smallest value we know of
-     */
-    public int smallestKnownValue() {
-        int smallest = 999;
-        for (int i = 0; i < knownCards.size(); i++) {
-            if (knownCards.get(i) != null && knownCards.get(i).value < smallest) {
-                smallest = knownCards.get(i).value;
-            }
-        }
-        return smallest;
-    }
-    
-    /**
-     * @return the highest value we know of
-     */
-    public int highestKnownValue() {
-        int highest = 0;
-        for (int i = 0; i < knownCards.size(); i++) {
-            if (knownCards.get(i) != null && knownCards.get(i).value > highest) {
-                highest = knownCards.get(i).value;
-            }
-        }
-        return highest;
-    }
-        
-    /**
-     * remember the played card and check if we still know the other card.
-     */
-    @Override
-    public void cardPlayed(int id, Card card) {
-        
-        //----- If other player has played the card we knew, then we do not know his new card yet.
-        if (knownCards.get(id) != null && knownCards.get(id).value == card.value) {
-            knownCards.set(id, null);
-        }
-        
-        //TODO: deduce new know cards from played cards (especially in endgame)
-    }
-    
     @Override
     public String toString() {
         StringBuffer buf = new StringBuffer();        

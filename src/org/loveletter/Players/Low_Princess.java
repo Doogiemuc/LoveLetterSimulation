@@ -8,15 +8,13 @@ import org.loveletter.Player;
 /**
  * Test Player
  */
-public class MaidLowCardPrincess extends Player {
+public class Low_Princess extends Player {
     
     /** random play, but will never play princess */
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
         
-        if (hasCardValue(Card.MAID)>0) return playValue(Card.MAID);
-                
         return card1.value < card2.value ? playCard1() : playCard2(); 
     }
     

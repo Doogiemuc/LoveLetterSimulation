@@ -7,19 +7,20 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.loveletter.Players.Best;
-import org.loveletter.Players.CheatingLooker;
-import org.loveletter.Players.High;
-import org.loveletter.Players.HighCard;
-import org.loveletter.Players.HighProbability;
-import org.loveletter.Players.LowBrain;
-import org.loveletter.Players.LowCard;
-import org.loveletter.Players.LowCardHigh;
-import org.loveletter.Players.LowCardHighProbability;
-import org.loveletter.Players.LowCardPrincess;
-import org.loveletter.Players.MaidLowCardHigh;
-import org.loveletter.Players.MaidLowCardPrincess;
-import org.loveletter.Players.Random;
-import org.loveletter.Players.RandomPrincess;
+import org.loveletter.Players.Random_High;
+import org.loveletter.Players.High_Random;
+import org.loveletter.Players.Random_HighProbability;
+import org.loveletter.Players.KillMaidLow_BrainHigh;
+import org.loveletter.Players.Low_BrainHigh;
+import org.loveletter.Players.Low_Random;
+import org.loveletter.Players.Low_High;
+import org.loveletter.Players.Low_HighProbability;
+import org.loveletter.Players.Low_Princess;
+import org.loveletter.Players.MaidLow_BrainHigh;
+import org.loveletter.Players.MaidLow_High;
+import org.loveletter.Players.MaidLow_Princess;
+import org.loveletter.Players.Random_Random;
+import org.loveletter.Players.Random_Princess;
 import org.loveletter.Players.TestPlayer;
 
 /**
@@ -38,18 +39,20 @@ public class LoveLetterGame {
         
         // Real players        
         playerPool.add(new Best());
-        playerPool.add(new HighCard());
-        playerPool.add(new LowCard());
-        playerPool.add(new Random());
-        playerPool.add(new HighProbability());
-        playerPool.add(new RandomPrincess());
-        playerPool.add(new LowCardPrincess());
-        playerPool.add(new LowCardHighProbability());
-        playerPool.add(new MaidLowCardPrincess());
-        playerPool.add(new MaidLowCardHigh());
-        playerPool.add(new High());
-        playerPool.add(new LowCardHigh());
-        playerPool.add(new LowBrain());
+        playerPool.add(new High_Random());
+        playerPool.add(new Low_Random());
+        playerPool.add(new Random_Random());
+        playerPool.add(new Random_HighProbability());
+        playerPool.add(new Random_Princess());
+        playerPool.add(new Low_Princess());
+        playerPool.add(new Low_HighProbability());
+        playerPool.add(new MaidLow_Princess());
+        playerPool.add(new MaidLow_High());
+        playerPool.add(new Random_High());
+        playerPool.add(new Low_High());
+        playerPool.add(new Low_BrainHigh());
+        playerPool.add(new MaidLow_BrainHigh());
+        playerPool.add(new KillMaidLow_BrainHigh());
         playerPool.add(new TestPlayer());
         
         // Cheaters -- Do not include in fair comparison

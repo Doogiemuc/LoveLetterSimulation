@@ -6,9 +6,9 @@ import org.loveletter.Card;
 import org.loveletter.Player;
 
 /**
- * A player that always play's a random card and guesses the highest card with most unseen copies left.
+ * A player that always play's a random card and guesses the highest card left.
  */
-public class HighProbability extends Player {
+public class Random_High extends Player {
     
     /** random play, but will never play princess */
     @Override
@@ -33,12 +33,8 @@ public class HighProbability extends Player {
      */
     @Override
     public int guessCardValue(Player p) {
-    	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
-    		if (getCardsLeft(i) == 2)
-    				return i;
-    	}
     	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
-    		if (getCardsLeft(i) == 1)
+    		if (getCardsLeft(i) > 0)
     				return i;
     	}
     	

@@ -6,16 +6,17 @@ import org.loveletter.Card;
 import org.loveletter.Player;
 
 /**
- * Test Player
+ * A player that always play's a random card.
  */
-public class LowCardHigh extends Player {
+public class Random_Random extends Player {
     
-    /** Play low card */
+    /** random play, but will never play princess */
     @Override
     public Card chooseCardtoPlay() {
-        assert(card1 != null && card2 != null);
-        
-        return card1.value < card2.value ? playCard1() : playCard2(); 
+    	assert(card1 != null && card2 != null);
+        if (card1.value == Card.PRINCESS) return playCard2();
+        if (card2.value == Card.PRINCESS) return playCard1();
+        return rand.nextBoolean() ? playCard1() : playCard2();
     }
     
     /**
@@ -32,12 +33,6 @@ public class LowCardHigh extends Player {
      */
     @Override
     public int guessCardValue(Player p) {
-    	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
-    		if (getCardsLeft(i) > 0)
-    				return i;
-    	}
-    	
-    	//It could be the case that only GUARDS are left -> guess nothing in this case.
-    	return -1;
+        return 2+rand.nextInt(7);      // card value (2-8)
     }
 }

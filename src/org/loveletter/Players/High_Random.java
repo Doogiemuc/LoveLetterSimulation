@@ -6,14 +6,17 @@ import org.loveletter.Card;
 import org.loveletter.Player;
 
 /**
- * This player always plays the card with the lower value
+ * This player always plays the card with the higher value
  */
-public class LowCard extends Player {
+public class High_Random extends Player {
     
-    /** Always chose card with <b>lower</b> value. */
+    /** Always chose card with <b>higher</b> value, unless it is the princess. */
     @Override
     public Card chooseCardtoPlay() {
-        return card1.value < card2.value ? playCard1() : playCard2(); 
+        if (card1.value == Card.PRINCESS) return playCard2();
+        if (card2.value == Card.PRINCESS) return playCard1();
+        //TODO: should HigherCardPlaer also never play 7COUNTESS ?
+        return card1.value > card2.value ? playCard1() : playCard2(); 
     }
 
     /** get random id of other players. */

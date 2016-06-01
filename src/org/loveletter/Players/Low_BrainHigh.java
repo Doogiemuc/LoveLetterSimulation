@@ -6,38 +6,21 @@ import org.loveletter.Card;
 import org.loveletter.Player;
 
 /**
- * Test Player
+ * Play lowest card, guess from memory else highest
  */
-public class TestPlayer extends Player {
+public class Low_BrainHigh extends Player {
     
     /** Testing */
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
-        
-        //Can I throw out another player because we know his card and we can guess with guard?
-        if (hasCardValue(Card.GUARD) > 0 && highestKnownValue() > Card.GUARD) 
-        	return playValue(Card.GUARD);
-                
-        // Play maid if have one
-        if (hasCardValue(Card.MAID)>0) 
-        	return playValue(Card.MAID);
-        
-        // If Baron and prince play prince
-        if (hasCardValue(Card.BARON)>0 &&
-        	hasCardValue(Card.PRINCE)>0)
-        	return playValue(Card.PRINCE);
-        
-        // Play Priest if have one
-        if (hasCardValue(Card.PRIEST)>0) 
-        	return playValue(Card.PRIEST);        
                         
         // Play lower card
         return card1.value < card2.value ? playCard1() : playCard2(); 
     }
     
     /**
-     * always returns a random other player
+     * Return player with known card else returns a random other player
      */
     @Override
     public Player getPlayerFor(int cardValue, Set<Player> availablePlayers) {
@@ -60,11 +43,6 @@ public class TestPlayer extends Player {
         		return -1;
             return knownCard.value;
         }
-        
-        // Try to remove dangers
-        if (hasCardValue(Card.PRINCESS) > 0 &&
-        	getCardsLeft(Card.PRINCE) > 0)
-        	return Card.PRINCE;
         
     	// Guess highest card that is left at least once
     	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {

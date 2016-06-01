@@ -8,9 +8,9 @@ import org.loveletter.Player;
 /**
  * Test Player
  */
-public class LowCardPrincess extends Player {
+public class Low_HighProbability extends Player {
     
-    /** random play, but will never play princess */
+    /** Play low card */
     @Override
     public Card chooseCardtoPlay() {
         assert(card1 != null && card2 != null);
@@ -32,6 +32,16 @@ public class LowCardPrincess extends Player {
      */
     @Override
     public int guessCardValue(Player p) {
-        return Card.PRINCESS;
+    	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
+    		if (getCardsLeft(i) == 2)
+    				return i;
+    	}
+    	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
+    		if (getCardsLeft(i) == 1)
+    				return i;
+    	}
+    	
+    	//It could be the case that only GUARDS are left -> guess nothing in this case.
+    	return -1;
     }
 }

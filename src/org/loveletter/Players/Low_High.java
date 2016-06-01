@@ -8,7 +8,7 @@ import org.loveletter.Player;
 /**
  * Test Player
  */
-public class LowCardHighProbability extends Player {
+public class Low_High extends Player {
     
     /** Play low card */
     @Override
@@ -32,12 +32,8 @@ public class LowCardHighProbability extends Player {
      */
     @Override
     public int guessCardValue(Player p) {
-    	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
-    		if (getCardsLeft(i) == 2)
-    				return i;
-    	}
     	for (int i = Card.PRINCESS; i > Card.GUARD; i--) {
-    		if (getCardsLeft(i) == 1)
+    		if (getCardsLeft(i) > 0)
     				return i;
     	}
     	

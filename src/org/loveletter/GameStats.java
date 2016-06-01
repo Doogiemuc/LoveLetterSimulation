@@ -2,6 +2,7 @@ package org.loveletter;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,9 +13,9 @@ public class GameStats {
     List<Player> players;
     int roundsPlayed = 0;
     Set<Player> winners = new HashSet<Player>();
-    List<List<Card>> playedCards;
+    Map<Player, List<Card>> playedCards;
 
-    public GameStats(List<Card> initialStack, List<Player> players, int roundsPlayed, List<List<Card>> playedCards) {
+    public GameStats(List<Card> initialStack, List<Player> players, int roundsPlayed, Map<Player, List<Card>> playedCards) {
         int highestValue = 0;
         for (Player player : players) {
             if (player.inGame && player.card1.value > highestValue) {
@@ -46,7 +47,7 @@ public class GameStats {
         for (Player player : players) {
             buf.append(player.toString());
             buf.append("(");
-            for (Card card : playedCards.get(player.id)) {
+            for (Card card : playedCards.get(player)) {
                 buf.append(card.value);
             }
             buf.append("), ");

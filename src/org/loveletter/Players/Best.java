@@ -52,7 +52,7 @@ public class Best extends Player {
         if (card2.value == Card.KING && highestKnownValue() > card1.value) return playCard2();  
         if (card2.value == Card.KING && card1.value == Card.PRINCE)  {
             // if we know another player that has a princess, then play the prince and let him discard it :-)
-            if (knownCards.contains(Card.PRINCESS)) {
+            if (knownCards.values().contains(Card.PRINCESS)) {
                 return playCard1();  // play the prince
             }
         }
@@ -84,59 +84,54 @@ public class Best extends Player {
         return playCard2();
     }
     
-    /** to guess at whom */
-    private int guessPlayerId = -1;
-
     @Override
-    public int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds) {
+    public Player getPlayerFor(int cardValue, Set<Player> availablePlayers) {
         switch (cardValue) {
         case Card.GUARD:  // guess other player with the highest card that we know of (if any within availablePlayerIds)
-            guessPlayerId = getPlayerWithHighestCard(availablePlayerIds);
-            if (this.guessPlayerId != -1 && availablePlayerIds.contains(guessPlayerId)) {
+            Player p = getPlayerWithHighestCard(availablePlayers);
+            if (p != null && availablePlayers.contains(p)) {
                 Log.traceAppend(" of course correctly");  // ... guesses ...  :-)
-                return this.guessPlayerId;
+                return p;
             }
             // otherwise return any available other player
-            guessPlayerId = getRandomPlayerId(availablePlayerIds);
-            return guessPlayerId;
+            return getRandomPlayer(availablePlayers);
             
         case Card.PRIEST:  // look at another players card
             // choose a player who's card we do not know yet
-            for (Integer lookAtId : availablePlayerIds) {
+            for (Player lookAtId : availablePlayers) {
                 if (knownCards.get(lookAtId) == null) return lookAtId;
             }
-            return getRandomPlayerId(availablePlayerIds);
+            return getRandomPlayer(availablePlayers);
             
         case Card.BARON:   // compare cards
             // If we know someone with just a lower card than ours, then compare with him
             int val = 0;
-            int compareWith = -1;
-            for (int i = 0; i < knownCards.size(); i++) {
-                Card knownCard = knownCards.get(i);
-                if (availablePlayerIds.contains(i) &&  
+            Player compareWith = null;
+            for (Player player : knownCards.keySet()) {
+                Card knownCard = knownCards.get(player);
+                if (availablePlayers.contains(player) &&  
                     knownCard != null && knownCard.value > val && knownCard.value < card1.value) 
                 {
                     val = knownCard.value;
-                    compareWith = i;
+                    compareWith = player;
                 }
             }
             //TODO: it might make sense to compare with player that has the same card value!
-            if (compareWith != -1) return compareWith;            
-            return getRandomPlayerId(availablePlayerIds);
+            if (compareWith != null) return compareWith;            
+            return getRandomPlayer(availablePlayers);
             
         case Card.PRINCE:  // discard card: choose the player with the highest card we know of
-            int discardId = getPlayerWithHighestCard(availablePlayerIds);
-            if (discardId != -1) return discardId;
-            return getRandomPlayerId(availablePlayerIds);
+            Player discard = getPlayerWithHighestCard(availablePlayers);
+            if (discard != null) return discard;
+            return getRandomPlayer(availablePlayers);
             
         case Card.KING:    // exchange cards with another player that has a high card (if we know any)
-            int exchangeWithId = getPlayerWithHighestCard(availablePlayerIds);
-            if (exchangeWithId != -1) return exchangeWithId;
-            return getRandomPlayerId(availablePlayerIds);
+            Player exchangeWith = getPlayerWithHighestCard(availablePlayers);
+            if (exchangeWith != null) return exchangeWith;
+            return getRandomPlayer(availablePlayers);
             
         default:
-            Log.error("Wrong card Value in getOtherPlayerFor: "+cardValue);
-            return -1;
+            throw new RuntimeException("Unknown card value");
         }
     }
 
@@ -146,9 +141,9 @@ public class Best extends Player {
      * @return guessed card value of other player
      */
     @Override
-    public int guessCardValue(int playerId) {
+    public int guessCardValue(Player p) {
         //----- if we know a players card, then guess it and throw him out
-        Card knownCard = knownCards.get(guessPlayerId);
+        Card knownCard = knownCards.get(p);
         if (knownCard != null) { 
         	if (knownCard.value == Card.GUARD)
         		return -1;
@@ -176,8 +171,8 @@ public class Best extends Player {
         	buf.append("[");
         	buf.append(card1);
         	buf.append(",");
-        	for (Card card : knownCards) {
-        		buf.append(card != null ? card.value : ".");
+        	for (Card card : knownCards.values()) {
+        		buf.append(card.value);
         	}
         	buf.append("]");
         }

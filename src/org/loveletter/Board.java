@@ -2,8 +2,10 @@ package org.loveletter;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,7 +28,7 @@ public class Board {
     public List<Player> players;
     
     /** keep track of already played cards for each player */
-    public List<List<Card>> playedCards;
+    public Map<Player, List<Card>> playedCards;
     
     /** index of player who is just his turn */
     int currentPlayerId = 0;
@@ -43,7 +45,7 @@ public class Board {
      * @param players the competing players at the table 
      */
     public Board(List<Player> initPlayers) {
-        this.playedCards  = new ArrayList<List<Card>>(initPlayers.size());
+        this.playedCards  = new HashMap<Player, List<Card>>();
        
         //----- setup cardstack and shuffle
         cardstack = new ArrayList<Card>();
@@ -61,7 +63,7 @@ public class Board {
         for (int i = 0; i < players.size(); i++) {
             Card firstCard = cardstack.remove(0);
             players.get(i).reset(this, i, firstCard);
-            playedCards.add(i, new ArrayList<Card>());
+            playedCards.put(players.get(i), new ArrayList<Card>());
         }
     }
 
@@ -103,11 +105,11 @@ public class Board {
             }
             handleCard(chosenCard);
         }
-        this.playedCards.get(currentPlayerId).add(chosenCard);
+        this.playedCards.get(currentPlayer).add(chosenCard);
         
         //----- inform all players about the played card
-        for (Player player : players) {
-            player.cardPlayed(currentPlayerId, chosenCard);
+        for (Player p : players) {
+            p.cardPlayed(currentPlayer, chosenCard);
         }
         Log.traceFlush();
         
@@ -132,7 +134,6 @@ public class Board {
      */
     public void handleCard(Card card) {
         Player currentPlayer = players.get(currentPlayerId);
-        int    otherId       = -1;
         Player otherPlayer   = null;
         
         // Remove old MAID effect
@@ -146,29 +147,28 @@ public class Board {
             card.value == Card.KING ) 
         {
             // create Set of available player IDs to choose from
-            Set<Integer> availablePlayerIds = new HashSet<Integer>();
+            Set<Player> availablePlayers = new HashSet<Player>();
             for (Player player : players) {
                 if (player.inGame &&                        // other player must still be in the game 
                     !player.isGuarded &&                    // and must not be guarded
                     (card.value == Card.PRINCE || player != currentPlayer)  )   // and must not choose himself, unless for the prince (discarding own card is allowed) 
                 {
-                    availablePlayerIds.add(player.id);
+                    availablePlayers.add(player);
                 }
             }
             // when there is no other player to choose from, then discard players card
-            if (availablePlayerIds.isEmpty()) {
+            if (availablePlayers.isEmpty()) {
                 Log.traceAppend(" without effect.");
                 return;
             }
             // let Player decide whom to choose
-            otherId = currentPlayer.getPlayerFor(card.value, availablePlayerIds);
-            assert(availablePlayerIds.contains(otherId));
-            otherPlayer = players.get(otherId);
+            otherPlayer= currentPlayer.getPlayerFor(card.value, availablePlayers);
+            assert(availablePlayers.contains(otherPlayer));
         }
         
         switch (card.value) {
         case Card.GUARD: // Try to guess  card of other player
-            int guessedValue = currentPlayer.guessCardValue(otherPlayer.id);
+            int guessedValue = currentPlayer.guessCardValue(otherPlayer);
             assert(guessedValue != Card.GUARD);
             Log.traceAppend(" guesses "+guessedValue+" at "+otherPlayer);
             if (otherPlayer.hasCardValue(guessedValue) > 0) {
@@ -178,14 +178,14 @@ public class Board {
             break;
             
         case Card.PRIEST: // look at other player's card
-            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1);
+            currentPlayer.otherPlayerHasCard(otherPlayer, otherPlayer.card1);
             Log.traceAppend(" and sees "+otherPlayer);
             break;
             
         case Card.BARON: // compare card values
             // both players now know each others card
-            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1);
-            otherPlayer.otherPlayerHasCard(currentPlayerId, currentPlayer.card1);
+            currentPlayer.otherPlayerHasCard(otherPlayer, otherPlayer.card1);
+            otherPlayer.otherPlayerHasCard(currentPlayer, currentPlayer.card1);
             if (currentPlayer.card1.value > otherPlayer.card1.value) {
                 otherPlayer.setInGame(false);
                 Log.traceAppend(" and throws out "+otherPlayer+ " in comparison");
@@ -207,7 +207,7 @@ public class Board {
         case Card.PRINCE:  // discard card and draw a new one (player may have chosen other player or himself) 
             Log.traceAppend(": "+otherPlayer);
             Card discarded = otherPlayer.playCard1();  // Discard card, without effect on other players
-            playedCards.get(otherId).add(discarded);
+            playedCards.get(otherPlayer).add(discarded);
             if (discarded.value == Card.PRINCESS) {
                 otherPlayer.setInGame(false);
                 Log.traceAppend(" has to discard the princess and is OUT.");
@@ -223,8 +223,8 @@ public class Board {
             Card myCard = currentPlayer.card1;
             currentPlayer.card1 = otherPlayer.card1;
             otherPlayer.card1 = myCard;
-            currentPlayer.otherPlayerHasCard(otherId, otherPlayer.card1);
-            otherPlayer.otherPlayerHasCard(currentPlayerId, currentPlayer.card1);
+            currentPlayer.otherPlayerHasCard(otherPlayer, otherPlayer.card1);
+            otherPlayer.otherPlayerHasCard(currentPlayer, currentPlayer.card1);
             break;
             
         case Card.COUNTESS:  
@@ -282,7 +282,7 @@ public class Board {
             if (player.card2 != null)
                 buf.append(player.card2.value);
             buf.append(")");
-            for (Card card : this.playedCards.get(player.id))
+            for (Card card : this.playedCards.get(player))
                 buf.append(card.value);
             buf.append(" ");
         }

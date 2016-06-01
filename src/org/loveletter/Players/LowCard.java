@@ -18,12 +18,12 @@ public class LowCard extends Player {
 
     /** get random id of other players. */
     @Override
-    public int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds) {
-    	return getRandomPlayerId(availablePlayerIds);
+    public Player getPlayerFor(int cardValue, Set<Player> availablePlayers) {
+        return getRandomPlayer(availablePlayers);
     }
 
     @Override
-    public int guessCardValue(int playerId) {
+    public int guessCardValue(Player p) {
         return 2+rand.nextInt(7);      // card value (2-8)
     }
 }

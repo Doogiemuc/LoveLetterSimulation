@@ -23,8 +23,8 @@ public class HighProbability extends Player {
      * always returns a random other player
      */
     @Override
-    public int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds) {
-        return getRandomPlayerId(availablePlayerIds);
+    public Player getPlayerFor(int cardValue, Set<Player> availablePlayers) {
+        return getRandomPlayer(availablePlayers);
     }
 
     /**
@@ -32,7 +32,7 @@ public class HighProbability extends Player {
      * @return value to guess (2-8). Guessing a Guard is not allowed
      */
     @Override
-    public int guessCardValue(int playerId) {
+    public int guessCardValue(Player p) {
     	for (int i = Card.PRINCE; i > Card.GUARD; i--) {
     		if (getCardsLeft(i) == 2)
     				return i;

@@ -1,14 +1,15 @@
 package org.loveletter;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 /**
  * Base class for a love letter player.
  */
-public abstract  class Player {
+public abstract class Player {
 
     /** Board this player is currently playing on */
     public Board board;
@@ -36,14 +37,13 @@ public abstract  class Player {
 	 * May contain null elements for cards of other players that we have not seen yet or do not know anymore!
 	 * My own cards are not listed!
 	 */
-	protected List<Card> knownCards;
+	protected Map<Player,Card> knownCards = new HashMap<Player,Card>();
     
-    /** Initialize player, need to call reset before play can happen */
+    /** Initialize player, need to call reset() before play can happen */
     public Player() {
     }
         
-    /** reset this player for a new game 
-     * @param board TODO*/
+    /** reset this player for a new game */
     public void reset(Board board, int id, Card firstCard) {
     	this.board = board;
         this.id = id;
@@ -51,10 +51,7 @@ public abstract  class Player {
         this.card2 = null;
         this.inGame = true;
         this.isGuarded = false;
-        this.knownCards = new ArrayList<Card>(board.players.size());        
-        for (int i = 0; i < board.players.size(); i++) {
-            knownCards.add(null);
-        }  
+        this.knownCards.clear(); 
     }
     
     /** is player still in game */
@@ -111,7 +108,7 @@ public abstract  class Player {
      *        This list may be empty!
      * @return the chosen player or -1 if list was empty
      */
-    public abstract int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds);
+    public abstract Player getPlayerFor(int cardValue, Set<Player> availablePlayers);
   /*  implement like this:
           
         switch (cardValue) {
@@ -138,7 +135,7 @@ public abstract  class Player {
      * @param playerId TODO
      * @return value to guess (2-8). Guessing a Guard(1) is not allowed
      */
-    public abstract int guessCardValue(int playerId);
+    public abstract int guessCardValue(Player p);
     
     @Override
     public String toString() {
@@ -158,12 +155,12 @@ public abstract  class Player {
      * @param availablePlayerIds set of ids to choose from (may contain own id)
      * @return the chosen id or -1 if availablePlayerIds was empty
      */
-    public int getRandomPlayerId(Set<Integer> availablePlayerIds) {
-        int countTo = rand.nextInt(availablePlayerIds.size()); 
+    public Player getRandomPlayer(Set<Player> availablePlayers) {
+        int countTo = rand.nextInt(availablePlayers.size()); 
         int counter = 0;
-        for(Integer id : availablePlayerIds)
+        for(Player p : availablePlayers)
         {
-            if (counter == countTo) return id;
+            if (counter == countTo) return p;
             counter++;
         }
         throw new RuntimeException("Not able to find random player.");
@@ -180,7 +177,7 @@ public abstract  class Player {
     		left--;
     	if (card2 != null && card2.value == card)
     		left--;
-    	for (List<Card> l : board.playedCards)
+    	for (List<Card> l : board.playedCards.values())
     		for (Card c : l)
     			if (c.value == card)
     				left--;
@@ -200,9 +197,9 @@ public abstract  class Player {
      * @param card card of this other player
      */
     /** remember cards of other players, when we see them */
-	public void otherPlayerHasCard(int id, Card card) {
-	    assert(id != this.id);
-	    knownCards.set(id, card);
+	public void otherPlayerHasCard(Player p, Card card) {
+	    assert(p.id != this.id);
+	    knownCards.put(p, card);
 	}
 
     /**
@@ -214,19 +211,16 @@ public abstract  class Player {
 	/**
 	 * remember the played card and check if we still know the other card.
 	 */
-	public void cardPlayed(int id, Card card) {
+	public void cardPlayed(Player p, Card card) {
 	    
 	    //----- If other player has played the card we knew, then we do not know his new card yet.
-	    if (knownCards.get(id) != null && knownCards.get(id).value == card.value) {
-	        knownCards.set(id, null);
+	    if (knownCards.get(p) != null && knownCards.get(p).value == card.value) {
+	        knownCards.remove(p);
 	    }
 	}
 
 	public boolean knowAnyCard() {
-	    for (Card card : knownCards) {
-	        if (card != null) return true;
-	    }
-	    return false;
+		return !knownCards.isEmpty();
 	}
 
 	/**
@@ -234,9 +228,9 @@ public abstract  class Player {
 	 */
 	public int smallestKnownValue() {
 	    int smallest = 999;
-	    for (int i = 0; i < knownCards.size(); i++) {
-	        if (knownCards.get(i) != null && knownCards.get(i).value < smallest) {
-	            smallest = knownCards.get(i).value;
+	    for (Player p : knownCards.keySet()) {
+	        if (knownCards.containsKey(p) && knownCards.get(p).value < smallest) {
+	            smallest = knownCards.get(p).value;
 	        }
 	    }
 	    return smallest;
@@ -247,9 +241,9 @@ public abstract  class Player {
 	 */
 	public int highestKnownValue() {
 	    int highest = 0;
-	    for (int i = 0; i < knownCards.size(); i++) {
-	        if (knownCards.get(i) != null && knownCards.get(i).value > highest) {
-	            highest = knownCards.get(i).value;
+	    for (Player p : knownCards.keySet()) {
+	        if (knownCards.containsKey(p) && knownCards.get(p).value > highest) {
+	            highest = knownCards.get(p).value;
 	        }
 	    }
 	    return highest;
@@ -259,17 +253,17 @@ public abstract  class Player {
 	 * @param availablePlayerIds list of player IDs to choose from
 	 * @return id of another player that has the highest card we know of. Or -1 if we do not know any other cards yet.
 	 */
-	protected int getPlayerWithHighestCard(Set<Integer> availablePlayerIds) {
+	protected Player getPlayerWithHighestCard(Set<Player> availablePlayers) {
 	    int maxValue = 0; 
-	    int otherId = -1;
-	    for (Integer availableId : availablePlayerIds) {                //Collections.max() is not null save! :-(
-	        Card knownCard = knownCards.get(availableId);
+	    Player otherPlayer = null;
+	    for (Player p : availablePlayers) {                //Collections.max() is not null save! :-(
+	        Card knownCard = knownCards.get(p);
 	        if (knownCard != null && knownCard.value > maxValue) {
 	            maxValue = knownCard.value;
-	            otherId = availableId;
+	            otherPlayer = p;
 	        }
 	    }
-	    return otherId;
+	    return otherPlayer;
 	}
   
 }

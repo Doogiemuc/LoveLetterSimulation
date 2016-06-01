@@ -23,8 +23,8 @@ public class Random extends Player {
      * always returns a random other player
      */
     @Override
-    public int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds) {
-        return getRandomPlayerId(availablePlayerIds);
+    public Player getPlayerFor(int cardValue, Set<Player> availablePlayers) {
+        return getRandomPlayer(availablePlayers);
     }
 
     /**
@@ -32,7 +32,7 @@ public class Random extends Player {
      * @return value to guess (2-8). Guessing a Guard is not allowed
      */
     @Override
-    public int guessCardValue(int playerId) {
+    public int guessCardValue(Player p) {
         return 2+rand.nextInt(7);      // card value (2-8)
     }
 }

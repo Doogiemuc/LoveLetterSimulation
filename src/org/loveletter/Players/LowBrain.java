@@ -23,11 +23,11 @@ public class LowBrain extends Player {
      * Return player with known card else returns a random other player
      */
     @Override
-    public int getPlayerFor(int cardValue, Set<Integer> availablePlayerIds) {
-    	int r = getPlayerWithHighestCard(availablePlayerIds);
-    	if (r != -1)
+    public Player getPlayerFor(int cardValue, Set<Player> availablePlayers) {
+    	Player r = getPlayerWithHighestCard(availablePlayers);
+    	if (r != null)
     		return r;
-    	return getRandomPlayerId(availablePlayerIds);    	
+    	return getRandomPlayer(availablePlayers);    	
     }
 
     /**
@@ -35,9 +35,9 @@ public class LowBrain extends Player {
      * @return value to guess (2-8). Guessing a Guard is not allowed
      */
     @Override
-    public int guessCardValue(int playerId) {
+    public int guessCardValue(Player p) {
         //----- if we know a players card, then guess it and throw him out
-        Card knownCard = knownCards.get(playerId);
+        Card knownCard = knownCards.get(p);
         if (knownCard != null) { 
         	if (knownCard.value == Card.GUARD)
         		return -1;
